@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace beepe0.UNetwork
+namespace UNetwork.UNetTools
 {
     public static class UNetworkUpdate
     {

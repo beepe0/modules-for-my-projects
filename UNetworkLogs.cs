@@ -1,16 +1,11 @@
 using System;
 using UnityEngine;
 
-namespace beepe0.UNetwork
+namespace UNetwork.UNetTools
 {
     public abstract class UNetworkLogs
     {
-        public enum ServerInfoType
-        {
-            Log,
-            Error,
-            Warning,
-        }
+        public enum ServerInfoType { Log, Error, Warning }
 
         public static readonly string[] InfoType = new string[] { "[LOG]", "[ERROR]", "[WARNING]"};
         

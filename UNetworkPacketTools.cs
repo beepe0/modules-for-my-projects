@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace beepe0.UNetwork
+namespace UNetwork.UNetTools
 {
     public abstract class UNetworkPacket
     {
