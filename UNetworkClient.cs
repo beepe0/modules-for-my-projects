@@ -1,8 +1,9 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using Network.UNTools;
 
-namespace Network.UnityServer
+namespace Network.UServer
 {
     [Serializable]
     public sealed class UNetworkClient
