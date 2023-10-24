@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace UNetwork.UNTools
+namespace Network.UNTools
 {
     public static class UNetworkUpdate
     {
