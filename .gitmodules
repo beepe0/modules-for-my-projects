@@ -10,3 +10,7 @@
 	path = Assets/Scripts/Network/UClient
 	url = https://github.com/beepe0/modules.git
 	branch = unetclient
+[submodule "Assets/Scripts/Singleton"]
+	path = Assets/Scripts/Singleton
+	url = https://github.com/beepe0/modules.git
+	branch = singleton
