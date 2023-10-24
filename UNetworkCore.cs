@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using Network.UNTools;
 
-namespace beepe0.UNetwork.UnityClient
+namespace Network.UClient
 {
     public static class UNetworkCore
     {

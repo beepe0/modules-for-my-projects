@@ -1,4 +1,6 @@
-namespace beepe0.UNetwork.UnityClient
+using Network.UNTools;
+
+namespace Network.UClient
 {
     public static class UNetworkIORules
     {
