@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace UNetwork.UNetTools
+namespace UNetwork.UNTools
 {
     public abstract class UNetworkLogs
     {
