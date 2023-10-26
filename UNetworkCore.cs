@@ -253,6 +253,8 @@ namespace Network.UClient
             
             _tcp = new ProtocolTcp();
             _udp = new ProtocolUdp();
+            
+            await UNetworkCore.ConnectAsync();
         }
         public static async Task ConnectAsync()
         {
