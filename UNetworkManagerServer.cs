@@ -1,13 +1,12 @@
 using System.Threading.Tasks;
 using UnityEngine;
 using Network.UNTools;
+using Singleton;
 
 namespace Network.UServer
 {
-    public sealed class UNetworkManagerServer : MonoBehaviour
+    public sealed class UNetworkManagerServer : Singleton<UNetworkManagerServer>
     {
-        public static UNetworkManagerServer Instance;
-        
         [Header("Connection settings")]
         public ushort serverPort = 12345;
         public string serverInternetProtocol = "127.0.0.1";
@@ -19,15 +18,6 @@ namespace Network.UServer
         public ushort receiveBufferSize = 512;
         public ushort sendBufferSize = 512;
         
-        private void Awake()
-        {
-            if (Instance != null && Instance != this)
-            {
-                UNetworkLogs.ErrorSingletonOnce();
-                Destroy(this);
-            }
-            else Instance = this;
-        }
         private async void Start()
         {
             await UNetworkCore.Start();
