@@ -90,7 +90,7 @@ namespace Network.UServer
                         PacketNumber = packet.ReadUShort(),
                         BufferBytes = packet.ReadBytes((ushort)(sizeData - packet.ReadPointer))
                     };
-
+git 
                     UNetworkUpdate.AddToQueue(() => UNetworkCore.RulesHandler.ExecuteRule(handlerPacket)); 
                 }
             }
