@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Network.UNTools;
+using UnityEngine;
 
 namespace Network.UServer
 {
@@ -136,7 +137,6 @@ namespace Network.UServer
                     
                     if(data.Length < 4)
                     {
-                        UNetworkLogs.ErrorReceivingUdp();
                         return;
                     }
 
@@ -204,10 +204,7 @@ namespace Network.UServer
                 
                 if(RulesHandler.Rules != null) RulesHandler.Clear();
                 
-                foreach (UNetworkClient networkClient in Clients.Values)
-                {
-                    networkClient.Close();
-                }
+                foreach (UNetworkClient networkClient in Clients.Values) networkClient.Close();
                 
                 Clients.Clear();
             }

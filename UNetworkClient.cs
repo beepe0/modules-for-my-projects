@@ -63,7 +63,6 @@ namespace Network.UServer
 
                         if (sizeData < 4)
                         {
-                            UNetworkLogs.ErrorReceivingTcp();
                             UNetworkCore.Clients[_clientId].Close();
                             return;
                         }
@@ -92,10 +91,7 @@ namespace Network.UServer
                         BufferBytes = packet.ReadBytes((ushort)(sizeData - packet.ReadPointer))
                     };
 
-                    UNetworkUpdate.AddToQueue(() =>
-                    {
-                        UNetworkCore.RulesHandler.ExecuteRule(handlerPacket);
-                    }); 
+                    UNetworkUpdate.AddToQueue(() => UNetworkCore.RulesHandler.ExecuteRule(handlerPacket)); 
                 }
             }
             public void SendData(byte[] data)
@@ -149,18 +145,13 @@ namespace Network.UServer
                     UNetworkCore.Clients[_clientId].Close();
                 }
             }
-            public void HandleData(UNetworkReadablePacket handlerPacket)
-            {
-                UNetworkUpdate.AddToQueue(() =>
-                {
-                    UNetworkCore.RulesHandler.ExecuteRule(handlerPacket);
-                });
-            }
+            public void HandleData(UNetworkReadablePacket handlerPacket) => UNetworkUpdate.AddToQueue(() => UNetworkCore.RulesHandler.ExecuteRule(handlerPacket));
         }
         
         public void Close()
         {
-            UNetworkCore.GeneralRules.OnDisconnect(ClientId);
+            if(Tcp is { isTcpConnect: true } || Udp is { isUdpConnect: true }) UNetworkCore.GeneralRules.OnDisconnect(ClientId);
+            
             if (Tcp is { isTcpConnect: true })
             {
                 Tcp.isTcpConnect = false;

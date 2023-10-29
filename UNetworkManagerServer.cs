@@ -18,18 +18,9 @@ namespace Network.UServer
         public ushort receiveBufferSize = 512;
         public ushort sendBufferSize = 512;
         
-        private async void Start()
-        {
-            await UNetworkCore.Start();
-        }
-        private void FixedUpdate()
-        {
-            UNetworkUpdate.Update();
-        }
-        private void OnApplicationQuit()
-        {
-            UNetworkCore.Close();
-        }
+        private async void Start() => await UNetworkCore.Start();
+        private void FixedUpdate() => UNetworkUpdate.Update();
+        private void OnApplicationQuit() => UNetworkCore.Close();
         public static async Task WaitForInitialization() => await Task.Run(() => { while (Instance == null) { } });
     }
 }
