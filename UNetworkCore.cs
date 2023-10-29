@@ -68,7 +68,6 @@ namespace Network.UClient
                 
                         if (sizeData < 4)
                         {
-                            UNetworkLogs.ErrorReceivingTcp();
                             Close();
                             return;
                         }
@@ -98,10 +97,7 @@ namespace Network.UClient
                     
                     readBytes += (ushort)(handlerPacketTools.Length + 2);
                     
-                    UNetworkUpdate.AddToQueue(() =>
-                    {
-                        UNetworkCore.RulesHandler.ExecuteRule(handlerPacketTools);
-                    }); 
+                    UNetworkUpdate.AddToQueue(() => UNetworkCore.RulesHandler.ExecuteRule(handlerPacketTools)); 
                 }
             }
             public void SendData(byte[] data)
@@ -155,7 +151,6 @@ namespace Network.UClient
 
                         if (data.Length < 4)
                         {
-                            UNetworkLogs.ErrorReceivingUdp();
                             Close();
                             return;
                         }
@@ -180,14 +175,8 @@ namespace Network.UClient
                     }
                 }
             }
-        
-            public void HandleData(UNetworkReadablePacket packetTools)
-            {
-                UNetworkUpdate.AddToQueue(() =>
-                {
-                    UNetworkCore.RulesHandler.ExecuteRule(packetTools);
-                });
-            }
+
+            public void HandleData(UNetworkReadablePacket packetTools) => UNetworkUpdate.AddToQueue(() => UNetworkCore.RulesHandler.ExecuteRule(packetTools));
 
             public void SendData(byte[] data)
             {
@@ -262,34 +251,19 @@ namespace Network.UClient
             
             _tcp.Connect();
 
-            await Task.Run(() => {
-                while (Tcp is {IsTcpConnect: false})
-                {
-                    
-                }
-            });
+            await Task.Run(() => { while (Tcp is {IsTcpConnect: false}){} });
             
             _udp.Connect();
             
-            await Task.Run(() => {
-                while (Udp is {IsUdpConnect: false})
-                {
-                    
-                }
-            });
+            await Task.Run(() => { while (Udp is {IsUdpConnect: false}){} });
         }
 
-        public static async Task WaitForConnection() => await Task.Run(() =>
-        {
-            while (!(Tcp is {IsTcpConnect: true}) || !( Udp is {IsUdpConnect: true}))
-            {
-                
-            }
-        });
+        public static async Task WaitForConnection() => await Task.Run(() => { while (!(Tcp is {IsTcpConnect: true}) || !( Udp is {IsUdpConnect: true})){} });
 
         public static void Close()
         {
-            GeneralRules.OnDisconnect();
+            if (_tcp is {IsTcpConnect: true} || _udp is {IsUdpConnect: true}) GeneralRules.OnDisconnect();
+            
             if (_tcp is {IsTcpConnect: true})
             {
                 _tcp.IsTcpConnect = false;
