@@ -1,13 +1,13 @@
-[submodule "Assets/Scripts/Network/UNTools"]
-	path = Assets/Scripts/Network/UNTools
+[submodule "Assets/Scripts/Network/UnityTools"]
+	path = Assets/Scripts/Network/UnityTools
 	url = https://github.com/beepe0/modules.git
 	branch = network/unettools
-[submodule "Assets/Scripts/Network/UServer"]
-	path = Assets/Scripts/Network/UServer
+[submodule "Assets/Scripts/Network/UnityServer"]
+	path = Assets/Scripts/Network/UnityServer
 	url = https://github.com/beepe0/modules.git
 	branch = network/unetserver
-[submodule "Assets/Scripts/Network/UClient"]
-	path = Assets/Scripts/Network/UClient
+[submodule "Assets/Scripts/Network/UnityClient"]
+	path = Assets/Scripts/Network/UnityClient
 	url = https://github.com/beepe0/modules.git
 	branch = network/unetclient
 [submodule "Assets/Scripts/Singleton"]
