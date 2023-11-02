@@ -1,8 +1,8 @@
-using Network.UNTools;
+using Network.UnityTools;
 
-namespace Network.UClient
+namespace Network.UnityClient
 {
-    public static class UNetworkIORules
+    public static class UNetworkClientIORules
     {
         public interface IGeneralRules
         {
@@ -10,12 +10,12 @@ namespace Network.UClient
         }
         public interface IInputRules
         {
-            public void OnWelcome(UNetworkReadablePacket inputPacket);
+            
         }
         
         public interface IOutputRules
         {
-            public void OnWelcome();
+            
         }
     }
 }
