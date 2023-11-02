@@ -5,7 +5,7 @@ namespace Network.UnityClient
 {
     public class UNetworkClient
     {
-        private readonly ushort _cliendId;
+        private readonly ushort _index;
         
         private UNetworkClientProtocolTcpHandler _tcpHandler;
         private UNetworkClientProtocolUdpHandler _udpHandler;
@@ -18,14 +18,14 @@ namespace Network.UnityClient
 
         private UNetworkClientManager _clientManager;
 
-        public ushort ClientId => _cliendId;
+        public ushort Index => _index;
         public UNetworkClientManager ClientManager => _clientManager;
         public UNetworkClientProtocolTcpHandler TcpHandler => _tcpHandler;
         public UNetworkClientProtocolUdpHandler UdpHandler => _udpHandler;
         public UNetworkClientRulesHandler RulesHandler => _rulesHandler;
         public UNetworkClientDataHandler DataHandler => _dataHandler;
         
-        public void Start(UNetworkClientManager clientManager)
+        public async void Start(UNetworkClientManager clientManager)
         {
             _tcpHandler = new UNetworkClientProtocolTcpHandler(this);
             _udpHandler = new UNetworkClientProtocolUdpHandler(this);
@@ -33,6 +33,7 @@ namespace Network.UnityClient
             _dataHandler = new UNetworkClientDataHandler(this);
 
             _clientManager = clientManager;
+            await ConnectAsync();
         }
         public async Task ConnectAsync()
         {

@@ -16,7 +16,7 @@ namespace Network.UnityClient
         private UNetworkClient _client = new();
         public UNetworkClient Client => _client;
         
-        private void Start() => _client.Start(this);
+        private void Awake() => _client.Start(this);
         private void FixedUpdate() => UNetworkUpdate.Update();
         private void OnApplicationQuit() => _client.Close();
     }

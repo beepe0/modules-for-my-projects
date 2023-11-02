@@ -11,15 +11,15 @@ namespace Network.UnityClient.Handlers
         {
             if(UncClient.TcpHandler == null) return;
                     
-            outputPacket.Insert(UncClient.ClientId);
+            outputPacket.Insert(UncClient.Index);
             outputPacket.Insert(outputPacket.GetLength());
             UncClient.TcpHandler.SendData(outputPacket.ToArray());
         }
-        public void SendDataUpd(UNetworkIOPacket outputPacket)
+        public void SendDataUdp(UNetworkIOPacket outputPacket)
         {
             if(UncClient.UdpHandler == null) return;
                     
-            outputPacket.Insert(UncClient.ClientId);
+            outputPacket.Insert(UncClient.Index);
             outputPacket.Insert(outputPacket.GetLength());
             UncClient.UdpHandler.SendData(outputPacket.ToArray());
         }
