@@ -6,20 +6,20 @@ namespace Network.UnityServer
     [Serializable]
     public sealed class UNetworkClient
     {
-        private readonly ushort _clientId;
+        private readonly ushort _index;
 
         private UNetworkServer _networkServer;
         private UNetworkServerProtocolTcpHandler _tcpHandler;
         private UNetworkServerProtocolUdpHandler _udpHandler;
 
-        public ushort ClientId => _clientId;
+        public ushort Index => _index;
         public UNetworkServer NetworkServer => _networkServer;
         public UNetworkServerProtocolTcpHandler TcpHandler => _tcpHandler;
         public UNetworkServerProtocolUdpHandler UdpHandler => _udpHandler;
 
-        public UNetworkClient(UNetworkServer server, ushort clientId)
+        public UNetworkClient(UNetworkServer server, ushort index)
         {
-            _clientId = clientId;
+            _index = index;
             _networkServer = server;
             
             _tcpHandler = new UNetworkServerProtocolTcpHandler(this);
@@ -28,7 +28,7 @@ namespace Network.UnityServer
         
         public void Close()
         {
-            if(_tcpHandler is { IsTcpConnect: true } || _udpHandler is { IsUdpConnect: true }) NetworkServer.GeneralRules.OnDisconnect(_clientId);
+            if(_tcpHandler is { IsTcpConnect: true } || _udpHandler is { IsUdpConnect: true }) NetworkServer.GeneralRules.OnDisconnect(_index);
             
             if (_tcpHandler != null) _tcpHandler.Close();
             if (_udpHandler != null) _udpHandler.Close();

@@ -19,7 +19,7 @@ namespace Network.UnityServer
         private UNetworkServer _server = new();
         public UNetworkServer Server => _server;
         
-        private void Start() => _server.Start();
+        private void Awake() => _server.Start();
         private void FixedUpdate() => UNetworkUpdate.Update();
         private void OnApplicationQuit() => _server.Close(); 
     }

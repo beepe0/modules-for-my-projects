@@ -38,7 +38,7 @@ namespace Network.UnityServer.Handlers
             
             foreach (UNetworkClient c in UncServer.Clients.Values)
             {
-                if (clientId != c.ClientId) c.TcpHandler.SendData(outputPacket.ToArray());
+                if (clientId != c.Index) c.TcpHandler.SendData(outputPacket.ToArray());
             }
         }
 
@@ -73,7 +73,7 @@ namespace Network.UnityServer.Handlers
             
             foreach (UNetworkClient c in UncServer.Clients.Values)
             {
-                if(clientId != c.ClientId) c.UdpHandler.SendData(outputPacket.ToArray());
+                if(clientId != c.Index) c.UdpHandler.SendData(outputPacket.ToArray());
             }
         }
     }
