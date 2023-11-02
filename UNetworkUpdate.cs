@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Network.UNTools
+namespace Network.UnityTools
 {
     public static class UNetworkUpdate
     {
