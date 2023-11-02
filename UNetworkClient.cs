@@ -1,175 +1,37 @@
 using System;
-using System.Net;
-using System.Net.Sockets;
-using Network.UNTools;
+using Network.UnityServer.Handlers;
 
-namespace Network.UServer
+namespace Network.UnityServer
 {
     [Serializable]
     public sealed class UNetworkClient
     {
-        public readonly ushort ClientId;
-        
-        public ProtocolTcp Tcp;
-        public ProtocolUdp Udp;
+        private readonly ushort _clientId;
 
-        public UNetworkClient(ushort clientId)
+        private UNetworkServer _networkServer;
+        private UNetworkServerProtocolTcpHandler _tcpHandler;
+        private UNetworkServerProtocolUdpHandler _udpHandler;
+
+        public ushort ClientId => _clientId;
+        public UNetworkServer NetworkServer => _networkServer;
+        public UNetworkServerProtocolTcpHandler TcpHandler => _tcpHandler;
+        public UNetworkServerProtocolUdpHandler UdpHandler => _udpHandler;
+
+        public UNetworkClient(UNetworkServer server, ushort clientId)
         {
-            ClientId = clientId;
-            Tcp = new ProtocolTcp(clientId);
-            Udp = new ProtocolUdp(clientId);
-        }
-        
-        [Serializable]
-        public sealed class ProtocolTcp
-        {
-            public TcpClient TcpSocket;
-            public NetworkStream NetworkStream;
-
-            public bool isTcpConnect;
-
-            private readonly ushort _clientId;
+            _clientId = clientId;
+            _networkServer = server;
             
-            public byte[] receiveData;
-
-            public ProtocolTcp(ushort clientId)
-            {
-                _clientId = clientId;
-            }
-            public void Connect(TcpClient tcpSocket)
-            {
-                if (!isTcpConnect)
-                {
-                    TcpSocket = tcpSocket;
-                    TcpSocket.ReceiveBufferSize = UNetworkManagerServer.Instance.receiveBufferSize;
-                    TcpSocket.SendBufferSize = UNetworkManagerServer.Instance.sendBufferSize;
-            
-                    NetworkStream = TcpSocket.GetStream();
-                    receiveData = new byte[UNetworkManagerServer.Instance.receiveBufferSize];
-                    isTcpConnect = true;
-                    
-                    UNetworkCore.OutputRules.OnWelcome(_clientId);
-                    
-                    NetworkStream.BeginRead(receiveData, 0, receiveData.Length, CallBackReceive, null);
-                }
-            }
-            private void CallBackReceive(IAsyncResult asyncResult)
-            {
-                if (isTcpConnect)
-                {
-                    try
-                    {
-                        int sizeData = NetworkStream.EndRead(asyncResult);
-
-                        if (sizeData < 4)
-                        {
-                            UNetworkCore.Clients[_clientId].Close();
-                            return;
-                        }
-
-                        HandleData(sizeData, receiveData);
-                        receiveData = new byte[UNetworkManagerServer.Instance.receiveBufferSize];
-                        NetworkStream.BeginRead(receiveData, 0, receiveData.Length, CallBackReceive, null);
-                    }
-                    catch (Exception e)
-                    {
-                        UNetworkLogs.ErrorReceivingTcp(e);
-                        UNetworkCore.Clients[_clientId].Close();
-                    }
-                }
-            }
-            private void HandleData(int sizeData, byte[] data)
-            {
-                UNetworkIOPacket packet = new UNetworkIOPacket(data);
-                while (sizeData - 1 > packet.ReadPointer)
-                {
-                    UNetworkReadablePacket handlerPacket = new UNetworkReadablePacket
-                    {
-                        Length =  packet.ReadUShort(),
-                        Index = packet.ReadUShort(),
-                        PacketNumber = packet.ReadUShort(),
-                        BufferBytes = packet.ReadBytes((ushort)(sizeData - packet.ReadPointer))
-                    };
-git 
-                    UNetworkUpdate.AddToQueue(() => UNetworkCore.RulesHandler.ExecuteRule(handlerPacket)); 
-                }
-            }
-            public void SendData(byte[] data)
-            {
-                try
-                {
-                    if (TcpSocket != null)
-                    {
-                        NetworkStream.BeginWrite(data, 0, data.Length, null, null);
-                    }
-                }
-                catch (Exception e)
-                {
-                    UNetworkLogs.ErrorSendingTcp(e);
-                    UNetworkCore.Clients[_clientId].Close();
-                }
-            }
-        }
-        [Serializable]
-        public sealed class ProtocolUdp
-        {
-            public IPEndPoint EndPoint;
-
-            public bool isUdpConnect;
-            private readonly ushort _clientId;
-
-            public ProtocolUdp(ushort clientId)
-            {
-                _clientId = clientId;
-            }
-            public void Connect(IPEndPoint endPoint)
-            {
-                if (!isUdpConnect)
-                {
-                    EndPoint = endPoint;
-                    isUdpConnect = true;
-                }
-            }
-            public void SendData(byte[] data)
-            {
-                try
-                {
-                    if (UNetworkCore.UdpListener != null && EndPoint != null)
-                    {
-                        UNetworkCore.UdpListener.BeginSend(data, data.Length, EndPoint, null, null);
-                    }
-                }
-                catch (Exception e)
-                {
-                    UNetworkLogs.ErrorSendingUdp(e);
-                    UNetworkCore.Clients[_clientId].Close();
-                }
-            }
-            public void HandleData(UNetworkReadablePacket handlerPacket) => UNetworkUpdate.AddToQueue(() => UNetworkCore.RulesHandler.ExecuteRule(handlerPacket));
+            _tcpHandler = new UNetworkServerProtocolTcpHandler(this);
+            _udpHandler = new UNetworkServerProtocolUdpHandler(this);
         }
         
         public void Close()
         {
-            if(Tcp is { isTcpConnect: true } || Udp is { isUdpConnect: true }) UNetworkCore.GeneralRules.OnDisconnect(ClientId);
+            if(_tcpHandler is { IsTcpConnect: true } || _udpHandler is { IsUdpConnect: true }) NetworkServer.GeneralRules.OnDisconnect(_clientId);
             
-            if (Tcp is { isTcpConnect: true })
-            {
-                Tcp.isTcpConnect = false;
-                
-                Tcp.TcpSocket.Close();
-                Tcp.NetworkStream.Close();
-                
-                Tcp.receiveData = null;
-                Tcp.TcpSocket = null;
-                Tcp.NetworkStream = null;
-            }
-
-            if (Udp is { isUdpConnect: true })
-            {
-                Udp.isUdpConnect = false;
-                
-                Udp.EndPoint = null;
-            }
+            if (_tcpHandler != null) _tcpHandler.Close();
+            if (_udpHandler != null) _udpHandler.Close();
         }
     }
 }
