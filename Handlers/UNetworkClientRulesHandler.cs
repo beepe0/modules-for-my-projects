@@ -15,7 +15,7 @@ namespace Network.UnityClient.Handlers
         public void UpdateInputRules(UNetworkClientIORules.IInputRules inputRules) => UncClient.InputRules = inputRules;
         public void UpdateOutputRules(UNetworkClientIORules.IOutputRules outputRules) => UncClient.OutputRules = outputRules;
         public void AddNewRule(ushort packetNumber,  PacketHandler packetHandler) => _rulesHandler.Add(packetNumber, packetHandler);
-        public void ExecuteRule(UNetworkReadablePacket packetTools) => _rulesHandler[packetTools.PacketNumber](packetTools);
+        public void ExecuteRule(UNetworkReadablePacket packet) => _rulesHandler[packet.PacketNumber](packet);
 
         public override void Close()
         {
@@ -23,6 +23,6 @@ namespace Network.UnityClient.Handlers
             _rulesHandler = null;
         }
 
-        public delegate void PacketHandler(UNetworkReadablePacket packetTools);
+        public delegate void PacketHandler(UNetworkReadablePacket packet);
     }
 }

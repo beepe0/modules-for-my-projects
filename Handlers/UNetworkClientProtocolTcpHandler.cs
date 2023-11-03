@@ -107,7 +107,7 @@ namespace Network.UnityClient.Handlers
 
         public override void Close()
         {
-            if (IsTcpConnect)
+            if (_isTcpConnect)
             {
                 _isTcpConnect = false;
                 

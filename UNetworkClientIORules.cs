@@ -10,12 +10,11 @@ namespace Network.UnityClient
         }
         public interface IInputRules
         {
-            
+            public void HandShake(UNetworkReadablePacket packet);
         }
         
         public interface IOutputRules
         {
-            
         }
     }
 }
