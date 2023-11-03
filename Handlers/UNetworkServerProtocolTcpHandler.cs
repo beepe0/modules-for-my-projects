@@ -31,6 +31,8 @@ namespace Network.UnityServer.Handlers
                 _networkStream = _tcpSocket.GetStream();
                 _receiveData = new byte[Client.NetworkServer.ServerManager.receiveBufferSize];
                 _isTcpConnect = true;
+
+                Client.NetworkServer.GeneralRules.OnWelcome(Client.Index);
                 
                 _networkStream.BeginRead(_receiveData, 0, _receiveData.Length, CallBackReceive, null);
             }
@@ -89,6 +91,17 @@ namespace Network.UnityServer.Handlers
             {
                 UNetworkLogs.ErrorSendingTcp(e);
                 Client.Close();
+            }
+        }
+        public override void Close()
+        {
+            if (_isTcpConnect)
+            {
+                _isTcpConnect = false;
+                
+                _tcpSocket.Close();
+                _networkStream.Close();
+                _receiveData = null;
             }
         }
     }

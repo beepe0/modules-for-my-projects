@@ -40,5 +40,13 @@ namespace Network.UnityServer.Handlers
             }
         }
         public void HandleData(UNetworkReadablePacket handlerPacket) => UNetworkUpdate.AddToQueue(() => Client.NetworkServer.RulesHandler.ExecuteRule(handlerPacket));
+        public override void Close()
+        {
+            if (_isUdpConnect)
+            {
+                _isUdpConnect = false;
+                _endPoint = null;
+            }
+        }
     }
 }

@@ -6,17 +6,16 @@ namespace Network.UnityServer
     {
         public interface IGeneralRules
         {
+            public void OnWelcome(ushort clientId);
             public void OnDisconnect(ushort clientId);
             public void OnClose();
         }
         public interface IInputRules
         {
-            
         }
         
         public interface IOutputRules
         {
-            
         }
     }
 }

@@ -15,6 +15,7 @@ namespace Network.UnityServer
         private UdpClient _udpListener;
         
         private Dictionary<ushort, UNetworkClient> _clients = new Dictionary<ushort, UNetworkClient>();
+        private Dictionary<ushort, UNetworkRoom> _rooms = new Dictionary<ushort, UNetworkRoom>();
         
         private UNetworkServerRulesHandler _rulesHandler;
         private UNetworkServerDataHandler _dataHandler;
@@ -30,13 +31,17 @@ namespace Network.UnityServer
         public TcpListener TcpListener => _tcpListener;
         public UdpClient UdpListener => _udpListener;
         public Dictionary<ushort, UNetworkClient> Clients => _clients;
+        public Dictionary<ushort, UNetworkRoom> Rooms => _rooms;
         public UNetworkServerRulesHandler RulesHandler => _rulesHandler;
         public UNetworkServerDataHandler DataHandler => _dataHandler;
 
-        public void Start()
+        public void Start(UNetworkServerManager serverManager)
         {
             if (!_isRunServer)
             {
+                _serverManager = serverManager;
+                _rulesHandler = new UNetworkServerRulesHandler(this);
+                _dataHandler = new UNetworkServerDataHandler(this);
                 for (ushort clientId = 0; clientId < ServerManager.slots; clientId++)
                 {
                     _clients.Add(clientId, new UNetworkClient(this, clientId));

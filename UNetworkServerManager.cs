@@ -5,6 +5,9 @@ namespace Network.UnityServer
 {
     public sealed class UNetworkServerManager : MonoBehaviour
     {
+        [Header("Configuration")] 
+        public bool dontDestroyOnLoad;
+        
         [Header("Connection settings")]
         public ushort serverPort = 00000;
         public string serverInternetProtocol = "0.0.0.0";
@@ -18,8 +21,11 @@ namespace Network.UnityServer
 
         private UNetworkServer _server = new();
         public UNetworkServer Server => _server;
-        
-        private void Awake() => _server.Start();
+
+        private void Awake() {
+            if (dontDestroyOnLoad) DontDestroyOnLoad(this);
+            _server.Start(this);
+        }
         private void FixedUpdate() => UNetworkUpdate.Update();
         private void OnApplicationQuit() => _server.Close(); 
     }
