@@ -7,10 +7,11 @@ namespace Network.UnityServer
     {
         [Header("Configuration")] 
         public bool dontDestroyOnLoad;
+        public bool startOnAwake;
         
         [Header("Connection settings")]
-        public ushort serverPort = 00000;
-        public string serverInternetProtocol = "0.0.0.0";
+        public ushort serverPort = 34567;
+        public string serverInternetProtocol = "127.0.0.1";
 
         [Header("Server settings")]
         public ushort slots = 2;
@@ -24,7 +25,7 @@ namespace Network.UnityServer
 
         private void Awake() {
             if (dontDestroyOnLoad) DontDestroyOnLoad(this);
-            _server.Start(this);
+            if (startOnAwake) _server.Start(this);
         }
         private void FixedUpdate() => UNetworkUpdate.Update();
         private void OnApplicationQuit() => _server.Close(); 
