@@ -4,7 +4,7 @@ namespace Singleton
 {
     public abstract class Singleton<T> : Singleton where T : MonoBehaviour
     {
-        [SerializeField, Header("Singleton")] private bool _persistent = true;
+        [SerializeField, Header("Singleton")] private bool _dontDestroyOnLoad = true;
 
         private static T _instance;
         private static readonly object _lock = new object();
@@ -36,7 +36,7 @@ namespace Singleton
     
         private void Awake()
         {
-            if (_persistent) DontDestroyOnLoad(gameObject);
+            if (_dontDestroyOnLoad) DontDestroyOnLoad(gameObject);
             OnAwake();
         }
 
