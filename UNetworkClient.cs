@@ -5,7 +5,7 @@ namespace Network.UnityClient
 {
     public class UNetworkClient
     {
-        private readonly ushort _index;
+        private ushort _index;
         
         private UNetworkClientProtocolTcpHandler _tcpHandler;
         private UNetworkClientProtocolUdpHandler _udpHandler;
@@ -25,7 +25,7 @@ namespace Network.UnityClient
         public UNetworkClientRulesHandler RulesHandler => _rulesHandler;
         public UNetworkClientDataHandler DataHandler => _dataHandler;
         
-        public async void Start(UNetworkClientManager clientManager)
+        public void Start(UNetworkClientManager clientManager)
         {
             _tcpHandler = new UNetworkClientProtocolTcpHandler(this);
             _udpHandler = new UNetworkClientProtocolUdpHandler(this);
@@ -33,26 +33,23 @@ namespace Network.UnityClient
             _dataHandler = new UNetworkClientDataHandler(this);
 
             _clientManager = clientManager;
-            await ConnectAsync();
         }
         public async Task ConnectAsync()
         {
+            await Task.Run(() => { while (_tcpHandler == null){} });
             _tcpHandler.Connect();
-
-            await Task.Run(() => { while (TcpHandler is {IsTcpConnect: false}){} });
-            
+            await Task.Run(() => { while (_tcpHandler is {IsTcpConnect: false} || _udpHandler == null){} });
             _udpHandler.Connect();
-            
-            await Task.Run(() => { while (UdpHandler is {IsUdpConnect: false}){} });
+            await Task.Run(() => { while (_udpHandler is {IsUdpConnect: false}){} });
         }
-        public async Task WaitForConnection() => await Task.Run(() => { while (!(TcpHandler is {IsTcpConnect: true}) || !( UdpHandler is {IsUdpConnect: true})){} });
+        public async Task WaitForConnection() => await Task.Run(() => { while (!(_tcpHandler is {IsTcpConnect: true}) || !( _udpHandler is {IsUdpConnect: true})){} });
         public void Close()
         {
             if (_tcpHandler is {IsTcpConnect: true} || _udpHandler is {IsUdpConnect: true}) GeneralRules.OnDisconnect();
             
             if(_tcpHandler != null) _tcpHandler.Close();
             if(_udpHandler != null) _udpHandler.Close();
-            if(RulesHandler.Rules != null) RulesHandler.Close();
+            if(_rulesHandler.Rules != null) _rulesHandler.Close();
         }
     }
 }
