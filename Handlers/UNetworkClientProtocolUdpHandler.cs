@@ -22,12 +22,12 @@ namespace Network.UnityClient.Handlers
         {
             if (!_isUdpConnect)
             {
-                _endPoint = new IPEndPoint(IPAddress.Parse(UncClient.ClientManager.serverInternetProtocol), UncClient.ClientManager.serverPort);
+                _endPoint = new IPEndPoint(IPAddress.Parse(UncClient.serverInternetProtocol), UncClient.serverPort);
         
                 _udpClient = new UdpClient();
                 
-                _udpClient.Client.SendBufferSize = UncClient.ClientManager.sendBufferSize;
-                _udpClient.Client.ReceiveBufferSize = UncClient.ClientManager.receiveBufferSize;
+                _udpClient.Client.SendBufferSize = UncClient.sendBufferSize;
+                _udpClient.Client.ReceiveBufferSize = UncClient.receiveBufferSize;
             
                 _udpClient.Connect(_endPoint);
                 _udpClient.BeginReceive(CallBackReceive, null);

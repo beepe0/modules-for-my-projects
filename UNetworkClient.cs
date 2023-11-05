@@ -24,6 +24,8 @@ namespace Network.UnityClient
         
         public new void Create()
         {
+            OnCreate();
+            
             _tcpHandler = new UNetworkClientProtocolTcpHandler(this);
             _udpHandler = new UNetworkClientProtocolUdpHandler(this);
             _rulesHandler = new UNetworkClientRulesHandler(this);
@@ -31,6 +33,8 @@ namespace Network.UnityClient
         }
         public new async Task ConnectAsync()
         {
+            OnConnect();
+            
             await Task.Run(() => { while (_tcpHandler == null){} });
             _tcpHandler.Connect();
             await Task.Run(() => { while (_tcpHandler is {IsTcpConnect: false} || _udpHandler == null){} });
