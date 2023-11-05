@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
-using Network.UnityClient.Behavior;
+using Network.UnityClient.Behaviors;
 using Network.UnityTools;
 
 namespace Network.UnityClient.Handlers

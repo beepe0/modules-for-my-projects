@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Network.UnityClient.Behavior;
+using Network.UnityClient.Behaviors;
 using Network.UnityTools;
 
 namespace Network.UnityClient.Handlers
@@ -10,13 +10,9 @@ namespace Network.UnityClient.Handlers
         public Dictionary<ushort, PacketHandler> Rules => _rulesHandler;
         
         public UNetworkClientRulesHandler(UNetworkClient unc) : base(unc){}
-
-        public void UpdateGeneralRules(UNetworkClientIORules.IGeneralRules generalRules) => UncClient.GeneralRules = generalRules;
-        public void UpdateInputRules(UNetworkClientIORules.IInputRules inputRules) => UncClient.InputRules = inputRules;
-        public void UpdateOutputRules(UNetworkClientIORules.IOutputRules outputRules) => UncClient.OutputRules = outputRules;
-        public void AddNewRule(ushort packetNumber,  PacketHandler packetHandler) => _rulesHandler.Add(packetNumber, packetHandler);
+        
+        public void AddRule(ushort packetNumber,  PacketHandler packetHandler) => _rulesHandler.Add(packetNumber, packetHandler);
         public void ExecuteRule(UNetworkReadablePacket packet) => _rulesHandler[packet.PacketNumber](packet);
-
         public override void Close()
         {
             _rulesHandler.Clear();

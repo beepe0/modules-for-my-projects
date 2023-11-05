@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
-using Network.UnityClient.Behavior;
+using Network.UnityClient.Behaviors;
 using Network.UnityTools;
 
 namespace Network.UnityClient.Handlers
@@ -24,12 +24,12 @@ namespace Network.UnityClient.Handlers
             if (!_isTcpConnect)
             {
                 _tcpSocket = new TcpClient();
-                _tcpSocket.ReceiveBufferSize = UncClient.ClientManager.receiveBufferSize;
-                _tcpSocket.SendBufferSize = UncClient.ClientManager.sendBufferSize;
+                _tcpSocket.ReceiveBufferSize = UncClient.receiveBufferSize;
+                _tcpSocket.SendBufferSize = UncClient.sendBufferSize;
         
-                _receiveData = new byte[UncClient.ClientManager.receiveBufferSize];
+                _receiveData = new byte[UncClient.receiveBufferSize];
           
-                _tcpSocket.BeginConnect(UncClient.ClientManager.serverInternetProtocol, UncClient.ClientManager.serverPort, CallBackConnect, null);
+                _tcpSocket.BeginConnect(UncClient.serverInternetProtocol, UncClient.serverPort, CallBackConnect, null);
             }
         }
         private void CallBackConnect(IAsyncResult asyncResult)
@@ -43,7 +43,7 @@ namespace Network.UnityClient.Handlers
             }
 
             _networkStream = _tcpSocket.GetStream();
-            _networkStream.BeginRead(_receiveData, 0, UncClient.ClientManager.receiveBufferSize, CallBackReceive, null);
+            _networkStream.BeginRead(_receiveData, 0, UncClient.receiveBufferSize, CallBackReceive, null);
             
             _isTcpConnect = true;
         }
@@ -62,7 +62,7 @@ namespace Network.UnityClient.Handlers
                     }
 
                     HandleData(sizeData, _receiveData);
-                    _receiveData = new byte[UncClient.ClientManager.receiveBufferSize];
+                    _receiveData = new byte[UncClient.receiveBufferSize];
                     _networkStream.BeginRead(_receiveData, 0, _receiveData.Length, CallBackReceive, null);
                 }
                 catch (Exception e)

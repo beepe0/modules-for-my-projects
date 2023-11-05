@@ -1,4 +1,4 @@
-﻿namespace Network.UnityClient.Behavior
+﻿namespace Network.UnityClient.Behaviors
 {
     public abstract class UNetworkClientHandlerBehavior
     {
