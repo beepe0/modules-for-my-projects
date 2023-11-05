@@ -1,4 +1,4 @@
-﻿namespace Network.UnityServer.Behavior
+﻿namespace Network.UnityServer.Behaviors
 {
     public abstract class UNetworkServerHandlerBehavior
     {

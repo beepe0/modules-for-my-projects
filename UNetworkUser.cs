@@ -4,7 +4,7 @@ using Network.UnityServer.Handlers;
 namespace Network.UnityServer
 {
     [Serializable]
-    public sealed class UNetworkClient
+    public sealed class UNetworkUser
     {
         private readonly ushort _index;
 
@@ -17,7 +17,7 @@ namespace Network.UnityServer
         public UNetworkServerProtocolTcpHandler TcpHandler => _tcpHandler;
         public UNetworkServerProtocolUdpHandler UdpHandler => _udpHandler;
 
-        public UNetworkClient(UNetworkServer server, ushort index)
+        public UNetworkUser(UNetworkServer server, ushort index)
         {
             _index = index;
             _networkServer = server;
@@ -28,7 +28,7 @@ namespace Network.UnityServer
         
         public void Close()
         {
-            if(_tcpHandler is { IsTcpConnect: true } || _udpHandler is { IsUdpConnect: true }) NetworkServer.GeneralRules.OnDisconnect(_index);
+            if(_tcpHandler is { IsTcpConnect: true } || _udpHandler is { IsUdpConnect: true }) NetworkServer.OnDisconnectClient(_index);
             
             if (_tcpHandler != null) _tcpHandler.Close();
             if (_udpHandler != null) _udpHandler.Close();

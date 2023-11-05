@@ -2,56 +2,50 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using Network.UnityServer.Behaviors;
 using Network.UnityServer.Handlers;
 using Network.UnityTools;
 
 namespace Network.UnityServer
 {
-    public class UNetworkServer
+    public abstract class UNetworkServer : UNetworkServerBehavior
     {
         private bool _isRunServer;
 
         private TcpListener _tcpListener;
         private UdpClient _udpListener;
         
-        private Dictionary<ushort, UNetworkClient> _clients = new Dictionary<ushort, UNetworkClient>();
+        private Dictionary<ushort, UNetworkUser> _clients = new Dictionary<ushort, UNetworkUser>();
         private Dictionary<ushort, UNetworkRoom> _rooms = new Dictionary<ushort, UNetworkRoom>();
         
         private UNetworkServerRulesHandler _rulesHandler;
         private UNetworkServerDataHandler _dataHandler;
-        
-        public UNetworkServerIORules.IGeneralRules GeneralRules;
-        public UNetworkServerIORules.IInputRules InputRules;
-        public UNetworkServerIORules.IOutputRules OutputRules;
-
-        private UNetworkServerManager _serverManager;
-        public UNetworkServerManager ServerManager => _serverManager;
 
         public bool IsRunServer => _isRunServer;
         public TcpListener TcpListener => _tcpListener;
         public UdpClient UdpListener => _udpListener;
-        public Dictionary<ushort, UNetworkClient> Clients => _clients;
+        public Dictionary<ushort, UNetworkUser> Clients => _clients;
         public Dictionary<ushort, UNetworkRoom> Rooms => _rooms;
         public UNetworkServerRulesHandler RulesHandler => _rulesHandler;
         public UNetworkServerDataHandler DataHandler => _dataHandler;
-
-        public void Start(UNetworkServerManager serverManager)
+        
+        public new void Create()
         {
             if (!_isRunServer)
             {
-                _serverManager = serverManager;
+                OnCreate();
                 _rulesHandler = new UNetworkServerRulesHandler(this);
                 _dataHandler = new UNetworkServerDataHandler(this);
-                for (ushort clientId = 0; clientId < ServerManager.slots; clientId++)
+                for (ushort clientId = 0; clientId < slots; clientId++)
                 {
-                    _clients.Add(clientId, new UNetworkClient(this, clientId));
+                    _clients.Add(clientId, new UNetworkUser(this, clientId));
                 }
                 
-                _tcpListener = new TcpListener(new IPEndPoint(IPAddress.Parse(ServerManager.serverInternetProtocol), ServerManager.serverPort));
+                _tcpListener = new TcpListener(new IPEndPoint(IPAddress.Parse(serverInternetProtocol), serverPort));
                 _tcpListener.Start();
                 _tcpListener.BeginAcceptTcpClient(CallBackAcceptTcpClient, null);
                 _isRunServer = true;
-                _udpListener = new UdpClient(ServerManager.serverPort);
+                _udpListener = new UdpClient(serverPort);
                 _udpListener.BeginReceive(CallBackUdpReceive, null);
             }
         }
@@ -60,7 +54,7 @@ namespace Network.UnityServer
             TcpClient cl = _tcpListener.EndAcceptTcpClient(asyncResult);
             _tcpListener.BeginAcceptTcpClient(CallBackAcceptTcpClient, null);
 
-            foreach (UNetworkClient t in _clients.Values)
+            foreach (UNetworkUser t in _clients.Values)
             {
                 if(t.TcpHandler.TcpSocket == null) { t.TcpHandler.Connect(cl); return; }
             }
@@ -113,19 +107,19 @@ namespace Network.UnityServer
                 }
             }
         }
-        public void Close()
+        public new void Close()
         {
             if (_isRunServer)
             {
-                GeneralRules.OnClose();
+                OnClose();
                 _isRunServer = false;
                 
                 _udpListener.Close();
                 _tcpListener.Stop();
                 
-                if(_rulesHandler.Rules != null) _rulesHandler.Clear();
+                if(_rulesHandler.Rules != null) _rulesHandler.Close();
                 
-                foreach (UNetworkClient networkClient in _clients.Values) networkClient.Close();
+                foreach (UNetworkUser networkClient in _clients.Values) networkClient.Close();
                 
                 _clients.Clear();
             }
