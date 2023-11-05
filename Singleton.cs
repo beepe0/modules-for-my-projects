@@ -18,7 +18,7 @@ namespace Singleton
                 lock (_lock)
                 {
                     if (_instance != null) return _instance;
-
+                    
                     var instances = FindObjectsOfType<T>();
                     int count = instances.Length;
                 
@@ -29,7 +29,7 @@ namespace Singleton
                         return _instance = instances[0];
                     }
 
-                    return _instance = new GameObject($"({nameof(Singleton)}){typeof(T)}").AddComponent<T>();
+                    return _instance = new GameObject($"{typeof(T)}").AddComponent<T>();
                 }
             }
         }
