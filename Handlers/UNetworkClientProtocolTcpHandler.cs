@@ -38,7 +38,7 @@ namespace Network.UnityClient.Handlers
 
             if (!_tcpSocket.Connected)
             {
-                UncClient.Close();
+                UncClient.CloseClient();
                 return;
             }
 
@@ -57,7 +57,7 @@ namespace Network.UnityClient.Handlers
             
                     if (sizeData < 4)
                     {
-                        UncClient.Close();
+                        UncClient.CloseClient();
                         return;
                     }
 
@@ -68,7 +68,7 @@ namespace Network.UnityClient.Handlers
                 catch (Exception e)
                 {
                     UNetworkLogs.ErrorReceivingTcp(e);
-                    UncClient.Close();
+                    UncClient.CloseClient();
                 }
             }
         }
@@ -101,7 +101,7 @@ namespace Network.UnityClient.Handlers
             catch (Exception e)
             {
                 UNetworkLogs.ErrorSendingTcp(e);
-                UncClient.Close();
+                UncClient.CloseClient();
             }
         }
 

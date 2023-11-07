@@ -45,7 +45,7 @@ namespace Network.UnityClient.Handlers
 
                     if (data.Length < 4)
                     {
-                        UncClient.Close();
+                        UncClient.CloseClient();
                         return;
                     }
                     UNetworkIOPacket inputPacket = new UNetworkIOPacket(data);
@@ -65,7 +65,7 @@ namespace Network.UnityClient.Handlers
                 catch(Exception e)
                 {
                     UNetworkLogs.ErrorReceivingUdp(e);
-                    UncClient.Close();
+                    UncClient.CloseClient();
                 }
             }
         }
@@ -82,7 +82,7 @@ namespace Network.UnityClient.Handlers
             catch (Exception e)
             {
                 UNetworkLogs.ErrorSendingUdp(e);
-                UncClient.Close();
+                UncClient.CloseClient();
             }
         }
 

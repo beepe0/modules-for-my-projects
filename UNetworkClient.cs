@@ -13,37 +13,32 @@ namespace Network.UnityClient
         private UNetworkClientRulesHandler _rulesHandler;
         private UNetworkClientDataHandler _dataHandler;
 
-        private UNetworkClientManager _clientManager;
-
         public ushort Index => _index;
-        public UNetworkClientManager ClientManager => _clientManager;
         public UNetworkClientProtocolTcpHandler TcpHandler => _tcpHandler;
         public UNetworkClientProtocolUdpHandler UdpHandler => _udpHandler;
         public UNetworkClientRulesHandler RulesHandler => _rulesHandler;
         public UNetworkClientDataHandler DataHandler => _dataHandler;
         
-        public new void Create()
+        public new void StartClient()
         {
-            OnCreate();
-            
             _tcpHandler = new UNetworkClientProtocolTcpHandler(this);
             _udpHandler = new UNetworkClientProtocolUdpHandler(this);
             _rulesHandler = new UNetworkClientRulesHandler(this);
             _dataHandler = new UNetworkClientDataHandler(this);
+            OnStartClient();
         }
-        public new async Task ConnectAsync()
+        public new async Task ConnectClientAsync()
         {
-            OnConnect();
-            
             await Task.Run(() => { while (_tcpHandler == null){} });
             _tcpHandler.Connect();
             await Task.Run(() => { while (_tcpHandler is {IsTcpConnect: false} || _udpHandler == null){} });
             _udpHandler.Connect();
             await Task.Run(() => { while (_udpHandler is {IsUdpConnect: false}){} });
+            OnConnectClientAsync();
         }
-        public new void Close()
+        public new void CloseClient()
         {
-            if (_tcpHandler is {IsTcpConnect: true} || _udpHandler is {IsUdpConnect: true}) OnClose();
+            if (_tcpHandler is {IsTcpConnect: true} || _udpHandler is {IsUdpConnect: true}) OnCloseClient();
             
             if(_tcpHandler != null) _tcpHandler.Close();
             if(_udpHandler != null) _udpHandler.Close();
