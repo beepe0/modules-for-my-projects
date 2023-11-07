@@ -39,7 +39,7 @@ namespace Network.UnityServer.Handlers
                 Client.Close();
             }
         }
-        public void HandleData(UNetworkReadablePacket handlerPacket) => UNetworkUpdate.AddToQueue(() => Client.NetworkServer.RulesHandler.ExecuteRule(handlerPacket));
+        public void HandleData(UNetworkReadablePacket handlerPacket) => UNetworkUpdate.AddToQueue(() => Client.NetworkServer.RulesHandler.ExecuteRule(Client.Index, handlerPacket));
         public override void Close()
         {
             if (_isUdpConnect)

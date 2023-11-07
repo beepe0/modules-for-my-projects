@@ -75,7 +75,7 @@ namespace Network.UnityServer.Handlers
                     BufferBytes = packet.ReadBytes((ushort)(sizeData - packet.ReadPointer))
                 };
 
-                UNetworkUpdate.AddToQueue(() => Client.NetworkServer.RulesHandler.ExecuteRule(handlerPacket)); 
+                UNetworkUpdate.AddToQueue(() => Client.NetworkServer.RulesHandler.ExecuteRule(Client.Index, handlerPacket)); 
             }
         }
         public void SendData(byte[] data)
@@ -102,6 +102,8 @@ namespace Network.UnityServer.Handlers
                 _tcpSocket.Close();
                 _networkStream.Close();
                 _receiveData = null;
+                _tcpSocket = null;
+                _networkStream = null;
             }
         }
     }

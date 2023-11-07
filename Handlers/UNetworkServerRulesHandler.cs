@@ -12,7 +12,7 @@ namespace Network.UnityServer.Handlers
         public UNetworkServerRulesHandler(UNetworkServer unc) : base(unc) { }
         
         public void AddRule(ushort packetNumber,  PacketHandler packetHandler) => _rulesHandler.Add(packetNumber, packetHandler);
-        public void ExecuteRule(UNetworkReadablePacket packet) => _rulesHandler[packet.PacketNumber](packet.Index, packet);
+        public void ExecuteRule(ushort clientId, UNetworkReadablePacket packet) => _rulesHandler[packet.PacketNumber](clientId, packet);
         public override void Close()
         {
             _rulesHandler.Clear();

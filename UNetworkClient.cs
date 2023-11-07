@@ -1,5 +1,6 @@
 using System;
 using Network.UnityServer.Handlers;
+using UnityEngine;
 
 namespace Network.UnityServer
 {
@@ -7,7 +8,7 @@ namespace Network.UnityServer
     public sealed class UNetworkClient
     {
         private ushort _index;
-
+        
         private UNetworkServer _networkServer;
         private UNetworkServerProtocolTcpHandler _tcpHandler;
         private UNetworkServerProtocolUdpHandler _udpHandler;
@@ -29,7 +30,6 @@ namespace Network.UnityServer
             _tcpHandler = new UNetworkServerProtocolTcpHandler(this);
             _udpHandler = new UNetworkServerProtocolUdpHandler(this);
         }
-        
         public void Close()
         {
             if(_tcpHandler is { IsTcpConnect: true } || _udpHandler is { IsUdpConnect: true }) NetworkServer.OnDisconnectClient(_index);
