@@ -6,13 +6,17 @@ namespace Network.UnityServer
     [Serializable]
     public sealed class UNetworkClient
     {
-        private readonly ushort _index;
+        private ushort _index;
 
         private UNetworkServer _networkServer;
         private UNetworkServerProtocolTcpHandler _tcpHandler;
         private UNetworkServerProtocolUdpHandler _udpHandler;
 
-        public ushort Index => _index;
+        public ushort Index
+        {
+            get => _index;
+            set => _index = value;
+        }
         public UNetworkServer NetworkServer => _networkServer;
         public UNetworkServerProtocolTcpHandler TcpHandler => _tcpHandler;
         public UNetworkServerProtocolUdpHandler UdpHandler => _udpHandler;
