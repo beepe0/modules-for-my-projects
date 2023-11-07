@@ -13,7 +13,12 @@ namespace Network.UnityClient
         private UNetworkClientRulesHandler _rulesHandler;
         private UNetworkClientDataHandler _dataHandler;
 
-        public ushort Index => _index;
+        public ushort Index
+        {
+            get => _index;
+            set => _index = value;
+        }
+
         public UNetworkClientProtocolTcpHandler TcpHandler => _tcpHandler;
         public UNetworkClientProtocolUdpHandler UdpHandler => _udpHandler;
         public UNetworkClientRulesHandler RulesHandler => _rulesHandler;
@@ -27,14 +32,12 @@ namespace Network.UnityClient
             _dataHandler = new UNetworkClientDataHandler(this);
             OnStartClient();
         }
-        public new async Task ConnectClientAsync()
+
+        public new void ConnectClient()
         {
-            await Task.Run(() => { while (_tcpHandler == null){} });
             _tcpHandler.Connect();
-            await Task.Run(() => { while (_tcpHandler is {IsTcpConnect: false} || _udpHandler == null){} });
             _udpHandler.Connect();
-            await Task.Run(() => { while (_udpHandler is {IsUdpConnect: false}){} });
-            OnConnectClientAsync();
+            OnConnectClient();
         }
         public new void CloseClient()
         {

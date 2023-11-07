@@ -19,11 +19,11 @@ namespace Network.UnityClient.Behaviors
         public ushort sendBufferSize = 512;
         
         public void StartClient() { }
-        public Task ConnectClientAsync() => throw null!;
+        public void ConnectClient() {}
         public void CloseClient() { }
 
         public virtual void OnStartClient() { }
-        public virtual void OnConnectClientAsync() { }
+        public virtual void OnConnectClient() { }
         public virtual void OnCloseClient() { }
     }
 }
