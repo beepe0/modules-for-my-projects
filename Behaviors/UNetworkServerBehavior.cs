@@ -19,11 +19,11 @@ namespace Network.UnityServer.Behaviors
         public ushort receiveBufferSize = 512;
         public ushort sendBufferSize = 512;
         
-        public void Create() { }
-        public void Close() { }
+        public void StartServer() { }
+        public void CloseServer() { }
         
-        public virtual void OnCreate() { }
-        public virtual void OnClose() { }
+        public virtual void OnStartServer() { }
+        public virtual void OnCloseServer() { }
         public virtual void OnConnectClient(ushort clientId) { }
         public virtual void OnDisconnectClient(ushort clientId) { }
     }

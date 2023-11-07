@@ -14,7 +14,7 @@ namespace Network.UnityServer.Handlers
         public IPEndPoint EndPoint => _endPoint;
         public bool IsUdpConnect => _isUdpConnect;
 
-        public UNetworkServerProtocolUdpHandler(UNetworkUser unc) : base(unc) { }
+        public UNetworkServerProtocolUdpHandler(UNetworkClient unc) : base(unc) { }
 
         public void Connect(IPEndPoint endPoint)
         {
@@ -28,18 +28,18 @@ namespace Network.UnityServer.Handlers
         {
             try
             {
-                if (User.NetworkServer.UdpListener != null && _endPoint != null)
+                if (Client.NetworkServer.UdpListener != null && _endPoint != null)
                 {
-                    User.NetworkServer.UdpListener.BeginSend(data, data.Length, _endPoint, null, null);
+                    Client.NetworkServer.UdpListener.BeginSend(data, data.Length, _endPoint, null, null);
                 }
             }
             catch (Exception e)
             {
                 UNetworkLogs.ErrorSendingUdp(e);
-                User.Close();
+                Client.Close();
             }
         }
-        public void HandleData(UNetworkReadablePacket handlerPacket) => UNetworkUpdate.AddToQueue(() => User.NetworkServer.RulesHandler.ExecuteRule(handlerPacket));
+        public void HandleData(UNetworkReadablePacket handlerPacket) => UNetworkUpdate.AddToQueue(() => Client.NetworkServer.RulesHandler.ExecuteRule(handlerPacket));
         public override void Close()
         {
             if (_isUdpConnect)

@@ -23,7 +23,7 @@ namespace Network.UnityServer.Handlers
             outputPacket.Insert(clientId);
             outputPacket.Insert(outputPacket.GetLength());
             
-            foreach (UNetworkUser c in UncServer.Clients.Values)
+            foreach (UNetworkClient c in UncServer.Clients.Values)
             {
                 c.TcpHandler.SendData(outputPacket.ToArray());
             }
@@ -36,7 +36,7 @@ namespace Network.UnityServer.Handlers
             outputPacket.Insert(clientId);
             outputPacket.Insert(outputPacket.GetLength());
             
-            foreach (UNetworkUser c in UncServer.Clients.Values)
+            foreach (UNetworkClient c in UncServer.Clients.Values)
             {
                 if (clientId != c.Index) c.TcpHandler.SendData(outputPacket.ToArray());
             }
@@ -58,7 +58,7 @@ namespace Network.UnityServer.Handlers
             outputPacket.Insert(clientId);
             outputPacket.Insert(outputPacket.GetLength());
             
-            foreach (UNetworkUser c in UncServer.Clients.Values)
+            foreach (UNetworkClient c in UncServer.Clients.Values)
             {
                 c.UdpHandler.SendData(outputPacket.ToArray());
             }
@@ -71,7 +71,7 @@ namespace Network.UnityServer.Handlers
             outputPacket.Insert(clientId);
             outputPacket.Insert(outputPacket.GetLength());
             
-            foreach (UNetworkUser c in UncServer.Clients.Values)
+            foreach (UNetworkClient c in UncServer.Clients.Values)
             {
                 if(clientId != c.Index) c.UdpHandler.SendData(outputPacket.ToArray());
             }

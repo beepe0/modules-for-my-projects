@@ -15,7 +15,7 @@ namespace Network.UnityServer
         private TcpListener _tcpListener;
         private UdpClient _udpListener;
         
-        private Dictionary<ushort, UNetworkUser> _clients = new Dictionary<ushort, UNetworkUser>();
+        private Dictionary<ushort, UNetworkClient> _clients = new Dictionary<ushort, UNetworkClient>();
         private Dictionary<ushort, UNetworkRoom> _rooms = new Dictionary<ushort, UNetworkRoom>();
         
         private UNetworkServerRulesHandler _rulesHandler;
@@ -24,21 +24,21 @@ namespace Network.UnityServer
         public bool IsRunServer => _isRunServer;
         public TcpListener TcpListener => _tcpListener;
         public UdpClient UdpListener => _udpListener;
-        public Dictionary<ushort, UNetworkUser> Clients => _clients;
+        public Dictionary<ushort, UNetworkClient> Clients => _clients;
         public Dictionary<ushort, UNetworkRoom> Rooms => _rooms;
         public UNetworkServerRulesHandler RulesHandler => _rulesHandler;
         public UNetworkServerDataHandler DataHandler => _dataHandler;
         
-        public new void Create()
+        public new void StartServer()
         {
             if (!_isRunServer)
             {
-                OnCreate();
+                
                 _rulesHandler = new UNetworkServerRulesHandler(this);
                 _dataHandler = new UNetworkServerDataHandler(this);
                 for (ushort clientId = 0; clientId < slots; clientId++)
                 {
-                    _clients.Add(clientId, new UNetworkUser(this, clientId));
+                    _clients.Add(clientId, new UNetworkClient(this, clientId));
                 }
                 
                 _tcpListener = new TcpListener(new IPEndPoint(IPAddress.Parse(serverInternetProtocol), serverPort));
@@ -47,6 +47,7 @@ namespace Network.UnityServer
                 _isRunServer = true;
                 _udpListener = new UdpClient(serverPort);
                 _udpListener.BeginReceive(CallBackUdpReceive, null);
+                OnStartServer();
             }
         }
         private void CallBackAcceptTcpClient(IAsyncResult asyncResult)
@@ -54,7 +55,7 @@ namespace Network.UnityServer
             TcpClient cl = _tcpListener.EndAcceptTcpClient(asyncResult);
             _tcpListener.BeginAcceptTcpClient(CallBackAcceptTcpClient, null);
 
-            foreach (UNetworkUser t in _clients.Values)
+            foreach (UNetworkClient t in _clients.Values)
             {
                 if(t.TcpHandler.TcpSocket == null) { t.TcpHandler.Connect(cl); return; }
             }
@@ -103,15 +104,14 @@ namespace Network.UnityServer
                 catch (Exception e)
                 {
                     UNetworkLogs.ErrorReceivingUdp(e);
-                    Close();
+                    CloseServer();
                 }
             }
         }
-        public new void Close()
+        public new void CloseServer()
         {
             if (_isRunServer)
             {
-                OnClose();
                 _isRunServer = false;
                 
                 _udpListener.Close();
@@ -119,9 +119,10 @@ namespace Network.UnityServer
                 
                 if(_rulesHandler.Rules != null) _rulesHandler.Close();
                 
-                foreach (UNetworkUser networkClient in _clients.Values) networkClient.Close();
+                foreach (UNetworkClient networkClient in _clients.Values) networkClient.Close();
                 
                 _clients.Clear();
+                OnCloseServer();
             }
         }
     }

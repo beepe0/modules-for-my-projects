@@ -4,7 +4,7 @@ using Network.UnityServer.Handlers;
 namespace Network.UnityServer
 {
     [Serializable]
-    public sealed class UNetworkUser
+    public sealed class UNetworkClient
     {
         private readonly ushort _index;
 
@@ -17,7 +17,7 @@ namespace Network.UnityServer
         public UNetworkServerProtocolTcpHandler TcpHandler => _tcpHandler;
         public UNetworkServerProtocolUdpHandler UdpHandler => _udpHandler;
 
-        public UNetworkUser(UNetworkServer server, ushort index)
+        public UNetworkClient(UNetworkServer server, ushort index)
         {
             _index = index;
             _networkServer = server;

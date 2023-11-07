@@ -2,10 +2,10 @@
 {
     public abstract class UNetworkClientHandlerBehavior
     {
-        protected UNetworkUser UncUser;
-        public UNetworkUser User => UncUser;
+        protected UNetworkClient UncClient;
+        public UNetworkClient Client => UncClient;
 
-        protected UNetworkClientHandlerBehavior(UNetworkUser unc) => UncUser = unc;
+        protected UNetworkClientHandlerBehavior(UNetworkClient unc) => UncClient = unc;
         public virtual void Close() { }
     }
 }
