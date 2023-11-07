@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace CustomEditor.Attributes.Drawer
 {
+#if UNITY_EDITOR
     [CustomPropertyDrawer(typeof(ReadOnlyInspectorAttribute))]
     public class ReadOnlyInspectorDrawer : PropertyDrawer
     {
@@ -38,4 +39,5 @@ namespace CustomEditor.Attributes.Drawer
             EditorGUI.EndDisabledGroup();
         }
     }
+#endif
 }
