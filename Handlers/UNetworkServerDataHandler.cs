@@ -15,7 +15,6 @@ namespace Network.UnityServer.Handlers
             outputPacket.Insert(outputPacket.GetLength());
             client.TcpHandler.SendData(outputPacket.ToArray());
         }
-
         public void SendDataToAllTcp(ushort clientId, UNetworkIOPacket outputPacket)
         {
             if (!(UncServer.Clients.TryGetValue(clientId, out var client) && client != null && client.TcpHandler.IsTcpConnect)) return;
@@ -28,7 +27,6 @@ namespace Network.UnityServer.Handlers
                 c.TcpHandler.SendData(outputPacket.ToArray());
             }
         }
-
         public void SendDataToAllExceptClientTcp(ushort clientId, UNetworkIOPacket outputPacket)
         {
             if (!(UncServer.Clients.TryGetValue(clientId, out var client) && client != null && client.TcpHandler.IsTcpConnect)) return;
@@ -41,7 +39,6 @@ namespace Network.UnityServer.Handlers
                 if (clientId != c.Index) c.TcpHandler.SendData(outputPacket.ToArray());
             }
         }
-
         public void SendDataUdp(ushort clientId, UNetworkIOPacket outputPacket)
         {
             if (!(UncServer.Clients.TryGetValue(clientId, out var client) && client != null && client.UdpHandler.IsUdpConnect)) return;
@@ -50,7 +47,6 @@ namespace Network.UnityServer.Handlers
             outputPacket.Insert(outputPacket.GetLength());
             client.UdpHandler.SendData(outputPacket.ToArray());
         }
-
         public void SendDataToAllUdp(ushort clientId, UNetworkIOPacket outputPacket)
         {
             if (!(UncServer.Clients.TryGetValue(clientId, out var client) && client != null && client.UdpHandler.IsUdpConnect)) return;
@@ -63,7 +59,6 @@ namespace Network.UnityServer.Handlers
                 c.UdpHandler.SendData(outputPacket.ToArray());
             }
         }
-
         public void SendDataToAllExceptClientUdp(ushort clientId, UNetworkIOPacket outputPacket)
         {
             if (!(UncServer.Clients.TryGetValue(clientId, out var client) && client != null && client.UdpHandler.IsUdpConnect)) return;

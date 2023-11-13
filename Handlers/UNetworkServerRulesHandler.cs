@@ -20,6 +20,5 @@ namespace Network.UnityServer.Handlers
         }
 
         public delegate void PacketHandler(ushort clientId, UNetworkReadablePacket packet);
-
     }
 }

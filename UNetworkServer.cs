@@ -11,6 +11,7 @@ namespace Network.UnityServer
     public abstract class UNetworkServer : UNetworkServerBehavior
     {
         private bool _isRunServer;
+        private ushort _index;
 
         private TcpListener _tcpListener;
         private UdpClient _udpListener;
@@ -21,6 +22,11 @@ namespace Network.UnityServer
         private UNetworkServerRulesHandler _rulesHandler;
         private UNetworkServerDataHandler _dataHandler;
 
+        public ushort Index
+        {
+            get => _index;
+            set => _index = value;
+        }
         public bool IsRunServer => _isRunServer;
         public TcpListener TcpListener => _tcpListener;
         public UdpClient UdpListener => _udpListener;
@@ -29,15 +35,16 @@ namespace Network.UnityServer
         public UNetworkServerRulesHandler RulesHandler => _rulesHandler;
         public UNetworkServerDataHandler DataHandler => _dataHandler;
         
-        public new void StartServer()
+        public new void StartServer(ushort serverId)
         {
             if (!_isRunServer)
             {
-                
+                _index = serverId;
                 _rulesHandler = new UNetworkServerRulesHandler(this);
                 _dataHandler = new UNetworkServerDataHandler(this);
-                for (ushort clientId = 0; clientId < slots; clientId++)
+                for (ushort clientId = 0; clientId < slots + 1; clientId++)
                 {
+                    if(clientId == serverId) continue;
                     _clients.Add(clientId, new UNetworkClient(this, clientId));
                 }
                 
@@ -112,6 +119,8 @@ namespace Network.UnityServer
         {
             if (_isRunServer)
             {
+                OnCloseServer();
+
                 _isRunServer = false;
                 
                 _udpListener.Close();
@@ -122,7 +131,6 @@ namespace Network.UnityServer
                 foreach (UNetworkClient networkClient in _clients.Values) networkClient.Close();
                 
                 _clients.Clear();
-                OnCloseServer();
             }
         }
     }
