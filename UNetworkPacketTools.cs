@@ -6,8 +6,8 @@ namespace Network.UnityTools
 {
     public abstract class UNetworkPacket
     {
-        public List<byte> BufferBytes;
-        public ushort ReadPointer;
+        public List<byte> BufferBytes { get; set; }
+        public ushort ReadPointer { get; protected set; }
         
         public void Insert(ushort value) => BufferBytes.InsertRange(0, BitConverter.GetBytes(value));
         public void Write(byte value) => BufferBytes.Add(value);
