@@ -22,8 +22,8 @@ namespace Network.UnityClient.Behaviors
         public void ConnectClient() {}
         public void CloseClient() { }
 
-        public virtual void OnStartClient() { }
-        public virtual void OnConnectClient() { }
-        public virtual void OnCloseClient() { }
+        protected void OnStartClient() { }
+        protected void OnConnectClient() { }
+        protected void OnCloseClient() { }
     }
 }
