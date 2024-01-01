@@ -45,7 +45,7 @@ namespace Singleton
 
     public abstract class Singleton : MonoBehaviour
     {
-        public static bool Quitting { get; private set; }
+        protected static bool Quitting { get; private set; }
 
         private void OnApplicationQuit()
         {
