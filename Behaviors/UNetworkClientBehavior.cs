@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Network.UnityClient.Behaviors
 {
@@ -17,13 +16,13 @@ namespace Network.UnityClient.Behaviors
         [Header("Client settings")]
         public ushort receiveBufferSize = 512;
         public ushort sendBufferSize = 512;
-        
-        public void StartClient() { }
-        public void ConnectClient() {}
-        public void CloseClient() { }
 
-        protected void OnStartClient() { }
-        protected void OnConnectClient() { }
-        protected void OnCloseClient() { }
+        public abstract void StartClient();
+        public abstract void ConnectClient();
+        public abstract void CloseClient();
+
+        protected abstract void OnStartClient();
+        protected abstract void OnConnectClient();
+        protected abstract void OnCloseClient();
     }
 }

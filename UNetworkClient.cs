@@ -4,7 +4,7 @@ using Network.UnityClient.Handlers;
 
 namespace Network.UnityClient
 {
-    public class UNetworkClient : UNetworkClientBehavior
+    public abstract class UNetworkClient : UNetworkClientBehavior
     {
         private ushort _index;
         
@@ -24,7 +24,7 @@ namespace Network.UnityClient
         public UNetworkClientRulesHandler RulesHandler => _rulesHandler;
         public UNetworkClientDataHandler DataHandler => _dataHandler;
         
-        public new void StartClient()
+        public override void StartClient()
         {
             _tcpHandler = new UNetworkClientProtocolTcpHandler(this);
             _udpHandler = new UNetworkClientProtocolUdpHandler(this);
@@ -33,13 +33,13 @@ namespace Network.UnityClient
             OnStartClient();
         }
 
-        public new void ConnectClient()
+        public override void ConnectClient()
         {
             _tcpHandler.Connect();
             _udpHandler.Connect();
             OnConnectClient();
         }
-        public new void CloseClient()
+        public override void CloseClient()
         {
             if (_tcpHandler is {IsTcpConnect: true} || _udpHandler is {IsUdpConnect: true}) OnCloseClient();
             
