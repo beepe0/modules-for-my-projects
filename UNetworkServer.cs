@@ -22,11 +22,7 @@ namespace Network.UnityServer
         private UNetworkServerRulesHandler _rulesHandler;
         private UNetworkServerDataHandler _dataHandler;
 
-        public ushort Index
-        {
-            get => _index;
-            set => _index = value;
-        }
+        public ushort Index => _index;
         public bool IsRunServer => _isRunServer;
         public TcpListener TcpListener => _tcpListener;
         public UdpClient UdpListener => _udpListener;
@@ -35,17 +31,17 @@ namespace Network.UnityServer
         public UNetworkServerRulesHandler RulesHandler => _rulesHandler;
         public UNetworkServerDataHandler DataHandler => _dataHandler;
         
-        public new void StartServer(ushort serverId)
+        public override void StartServer(ushort serverId)
         {
             if (!_isRunServer)
             {
                 _index = serverId;
                 _rulesHandler = new UNetworkServerRulesHandler(this);
                 _dataHandler = new UNetworkServerDataHandler(this);
-                for (ushort clientId = 0; clientId < slots + 1; clientId++)
+                for (ushort id = 0; id < slots + 1; id++)
                 {
-                    if(clientId == serverId) continue;
-                    _clients.Add(clientId, new UNetworkClient(this, clientId));
+                    if(id == serverId) continue;
+                    _clients.Add(id, new UNetworkClient(this, id));
                 }
                 
                 _tcpListener = new TcpListener(new IPEndPoint(IPAddress.Parse(serverInternetProtocol), serverPort));
@@ -115,7 +111,7 @@ namespace Network.UnityServer
                 }
             }
         }
-        public new void CloseServer()
+        public override void CloseServer()
         {
             if (_isRunServer)
             {
