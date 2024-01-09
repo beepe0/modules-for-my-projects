@@ -36,7 +36,7 @@ namespace Network.UnityServer.Handlers
             catch (Exception e)
             {
                 UNetworkLogs.ErrorSendingUdp(e);
-                Client.Close();
+                Client.Disconnect();
             }
         }
         public void HandleData(UNetworkReadablePacket handlerPacket) => UNetworkUpdate.AddToQueue(() => Client.NetworkServer.RulesHandler.ExecuteRule(Client.Index, handlerPacket));

@@ -8,7 +8,7 @@ using Network.UnityTools;
 
 namespace Network.UnityServer
 {
-    public abstract class UNetworkServer : UNetworkServerBehavior
+    public abstract class UNetworkServer : UNetworkServerBehavior 
     {
         private bool _isRunServer;
         private ushort _index;
@@ -31,17 +31,22 @@ namespace Network.UnityServer
         public UNetworkServerRulesHandler RulesHandler => _rulesHandler;
         public UNetworkServerDataHandler DataHandler => _dataHandler;
         
-        public override void StartServer(ushort serverId)
+        public override void StartServer<TClientType, TRoomType>(ushort serverId)
         {
             if (!_isRunServer)
             {
                 _index = serverId;
                 _rulesHandler = new UNetworkServerRulesHandler(this);
                 _dataHandler = new UNetworkServerDataHandler(this);
+                
                 for (ushort id = 0; id < slots + 1; id++)
                 {
                     if(id == serverId) continue;
-                    _clients.Add(id, new UNetworkClient(this, id));
+                    _clients.Add(id, UNetworkClient.CreateInstance<TClientType>(this, id));
+                }
+                for (ushort id = 0; id < rooms; id++)
+                {
+                    _rooms.Add(id, UNetworkRoom.CreateInstance<TRoomType>(this, id, slotsInRoom));
                 }
                 
                 _tcpListener = new TcpListener(new IPEndPoint(IPAddress.Parse(serverInternetProtocol), serverPort));
@@ -53,6 +58,25 @@ namespace Network.UnityServer
                 OnStartServer();
             }
         }
+        public override void CloseServer()
+        {
+            if (_isRunServer)
+            {
+                OnCloseServer();
+
+                _isRunServer = false;
+                
+                _udpListener.Close();
+                _tcpListener.Stop();
+                
+                if(_rulesHandler.Rules != null) _rulesHandler.Close();
+                
+                foreach (UNetworkClient networkClient in _clients.Values) networkClient.Disconnect();
+                
+                _clients.Clear();
+            }
+        }
+        
         private void CallBackAcceptTcpClient(IAsyncResult asyncResult)
         {
             TcpClient cl = _tcpListener.EndAcceptTcpClient(asyncResult);
@@ -62,7 +86,6 @@ namespace Network.UnityServer
             {
                 if(t.TcpHandler.TcpSocket == null) { t.TcpHandler.Connect(cl); return; }
             }
-            
         }
         private void CallBackUdpReceive(IAsyncResult asyncResult)
         {
@@ -111,23 +134,8 @@ namespace Network.UnityServer
                 }
             }
         }
-        public override void CloseServer()
-        {
-            if (_isRunServer)
-            {
-                OnCloseServer();
 
-                _isRunServer = false;
-                
-                _udpListener.Close();
-                _tcpListener.Stop();
-                
-                if(_rulesHandler.Rules != null) _rulesHandler.Close();
-                
-                foreach (UNetworkClient networkClient in _clients.Values) networkClient.Close();
-                
-                _clients.Clear();
-            }
-        }
+        public T GetClient<T>(ushort index) where T : UNetworkClient => _clients[index] as T;
+        public T GetRoom<T>(ushort index) where T : UNetworkRoom => _rooms[index] as T;
     }
 }

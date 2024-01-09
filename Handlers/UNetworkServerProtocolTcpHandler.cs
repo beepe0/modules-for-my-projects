@@ -47,7 +47,7 @@ namespace Network.UnityServer.Handlers
 
                     if (sizeData < 4)
                     {
-                        Client.Close();
+                        Client.Disconnect();
                         return;
                     }
 
@@ -58,7 +58,7 @@ namespace Network.UnityServer.Handlers
                 catch (Exception e)
                 {
                     UNetworkLogs.ErrorReceivingTcp(e);
-                    Client.Close();
+                    Client.Disconnect();
                 }
             }
         }
@@ -90,7 +90,7 @@ namespace Network.UnityServer.Handlers
             catch (Exception e)
             {
                 UNetworkLogs.ErrorSendingTcp(e);
-                Client.Close();
+                Client.Disconnect();
             }
         }
         public override void Close()
