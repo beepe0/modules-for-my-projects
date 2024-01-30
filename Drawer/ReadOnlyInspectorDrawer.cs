@@ -30,6 +30,9 @@ namespace CustomEditor.Attributes.Drawer
                 case SerializedPropertyType.Enum:
                     value = property.enumValueIndex.ToString();
                     break;
+                case SerializedPropertyType.String:
+                    value = property.stringValue.ToString();
+                    break;
                 default:
                     value = "(not supported)";
                     break;
