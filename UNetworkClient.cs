@@ -1,51 +1,39 @@
-using System.Threading.Tasks;
-using Network.UnityClient.Behaviors;
-using Network.UnityClient.Handlers;
+using UnityEngine;
 
 namespace Network.UnityClient
 {
-    public abstract class UNetworkClient : UNetworkClientBehavior
+    public class UNetworkClient : MonoBehaviour
     {
-        private ushort _index;
+        public ushort Index { get; set; }
+        public UNetworkRoom CurrentSession { get; set; } 
+        public UNetworkConnection CurrentConnection { get; set; }
         
-        private UNetworkClientProtocolTcpHandler _tcpHandler;
-        private UNetworkClientProtocolUdpHandler _udpHandler;
-        private UNetworkClientRulesHandler _rulesHandler;
-        private UNetworkClientDataHandler _dataHandler;
+        public static TClient CreateInstance<TClient>(UNetworkConnection connection, ushort clientId, Transform parent) where TClient : UNetworkClient, new()
+        {
+            GameObject go = new GameObject();
+            TClient client = go.AddComponent<TClient>();
+            go.name = "client " + clientId;
+            go.transform.parent = parent;
+            client.Index = clientId;
+            client.CurrentConnection = connection;
 
-        public ushort Index
-        {
-            get => _index;
-            set => _index = value;
+            return client;
         }
-
-        public UNetworkClientProtocolTcpHandler TcpHandler => _tcpHandler;
-        public UNetworkClientProtocolUdpHandler UdpHandler => _udpHandler;
-        public UNetworkClientRulesHandler RulesHandler => _rulesHandler;
-        public UNetworkClientDataHandler DataHandler => _dataHandler;
-        
-        public override void StartClient()
+        public static TClient CreateInstance<TClient>(UNetworkConnection connection, ushort clientId, Transform parent, GameObject prefab) where TClient : UNetworkClient, new()
         {
-            _tcpHandler = new UNetworkClientProtocolTcpHandler(this);
-            _udpHandler = new UNetworkClientProtocolUdpHandler(this);
-            _rulesHandler = new UNetworkClientRulesHandler(this);
-            _dataHandler = new UNetworkClientDataHandler(this);
-            OnStartClient();
-        }
-
-        public override void ConnectClient()
-        {
-            _tcpHandler.Connect();
-            _udpHandler.Connect();
-            OnConnectClient();
-        }
-        public override void CloseClient()
-        {
-            if (_tcpHandler is {IsTcpConnect: true} || _udpHandler is {IsUdpConnect: true}) OnCloseClient();
+            GameObject go = Instantiate(prefab, parent, true);
+            TClient client;
+            if (!go.TryGetComponent<TClient>(out client))
+            {
+                client = go.AddComponent<TClient>();
+            }
+            client.Index = clientId;
+            client.CurrentConnection = connection;
+            go.name = "client " + clientId;
             
-            if(_tcpHandler != null) _tcpHandler.Close();
-            if(_udpHandler != null) _udpHandler.Close();
-            if(_rulesHandler.Rules != null) _rulesHandler.Close();
+            return client;
         }
+        public TRoom GetCurrentSession<TRoom>() where TRoom : UNetworkRoom, new() => CurrentSession as TRoom;
+        public TConnection GetCurrentConnection<TConnection>() where TConnection : UNetworkConnection, new() => CurrentConnection as TConnection;
     }
 }

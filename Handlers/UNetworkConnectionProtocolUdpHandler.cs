@@ -6,46 +6,43 @@ using Network.UnityTools;
 
 namespace Network.UnityClient.Handlers
 {
-    public sealed class UNetworkClientProtocolUdpHandler : UNetworkClientHandlerBehavior
+    public sealed class UNetworkConnectionProtocolUdpHandler : UNetworkConnectionHandlerBehavior
     {
-        private UdpClient _udpClient;
         private IPEndPoint _endPoint;
-        private bool _isUdpConnect;
-        
-        public UdpClient UdpClient => _udpClient;
+        public UdpClient UdpClient { get; private set; }
         public IPEndPoint EndPoint => _endPoint;
-        public bool IsUdpConnect => _isUdpConnect;
+        public bool IsUdpConnect { get; private set; }
 
-        public UNetworkClientProtocolUdpHandler(UNetworkClient unc) : base(unc){}
+        public UNetworkConnectionProtocolUdpHandler(UNetworkConnection unc) : base(unc){}
         
         public void Connect()
         {
-            if (!_isUdpConnect)
+            if (!IsUdpConnect)
             {
-                _endPoint = new IPEndPoint(IPAddress.Parse(UncClient.serverInternetProtocol), UncClient.serverPort);
+                _endPoint = new IPEndPoint(IPAddress.Parse(Connection.serverInternetProtocol), Connection.serverPort);
         
-                _udpClient = new UdpClient();
+                UdpClient = new UdpClient();
                 
-                _udpClient.Client.SendBufferSize = UncClient.sendBufferSize;
-                _udpClient.Client.ReceiveBufferSize = UncClient.receiveBufferSize;
+                UdpClient.Client.SendBufferSize = Connection.sendBufferSize;
+                UdpClient.Client.ReceiveBufferSize = Connection.receiveBufferSize;
             
-                _udpClient.Connect(_endPoint);
-                _udpClient.BeginReceive(CallBackReceive, null);
+                UdpClient.Connect(_endPoint);
+                UdpClient.BeginReceive(CallBackReceive, null);
 
-                _isUdpConnect = true;
+                IsUdpConnect = true;
             }
         }
         private void CallBackReceive(IAsyncResult asyncResult)
         {
-            if (_isUdpConnect)
+            if (IsUdpConnect)
             {
                 try
                 {
-                    byte[] data = _udpClient.EndReceive(asyncResult, ref _endPoint);
+                    byte[] data = UdpClient.EndReceive(asyncResult, ref _endPoint);
 
                     if (data.Length < 4)
                     {
-                        UncClient.CloseClient();
+                        Connection.CloseClient();
                         return;
                     }
                     UNetworkIOPacket inputPacket = new UNetworkIOPacket(data);
@@ -60,39 +57,39 @@ namespace Network.UnityClient.Handlers
                     
                     HandleData(readablePacketTools);
             
-                    _udpClient.BeginReceive(CallBackReceive, null);
+                    UdpClient.BeginReceive(CallBackReceive, null);
                 }
                 catch(Exception e)
                 {
                     UNetworkLogs.ErrorReceivingUdp(e);
-                    UncClient.CloseClient();
+                    Connection.CloseClient();
                 }
             }
         }
-        public void HandleData(UNetworkReadablePacket packetTools) => UNetworkUpdate.AddToQueue(() => UncClient.RulesHandler.ExecuteRule(packetTools));
+        public void HandleData(UNetworkReadablePacket packetTools) => UNetworkUpdate.AddToQueue(() => Connection.RulesHandler.ExecuteRule(packetTools));
         public void SendData(byte[] data)
         {
             try
             {
-                if (_udpClient != null && _endPoint != null)
+                if (UdpClient != null && _endPoint != null)
                 {
-                    _udpClient.BeginSend(data, data.Length, null, null);
+                    UdpClient.BeginSend(data, data.Length, null, null);
                 }
             }
             catch (Exception e)
             {
                 UNetworkLogs.ErrorSendingUdp(e);
-                UncClient.CloseClient();
+                Connection.CloseClient();
             }
         }
 
         public override void Close()
         {
-            if (_isUdpConnect)
+            if (IsUdpConnect)
             {
-                _isUdpConnect = false;
+                IsUdpConnect = false;
                 
-                _udpClient.Close();
+                UdpClient.Close();
                 _endPoint = null;
             }
         }
