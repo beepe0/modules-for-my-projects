@@ -6,7 +6,7 @@ using Network.UnityTools;
 namespace Network.UnityServer.Handlers
 {
     [Serializable]
-    public sealed class UNetworkServerProtocolTcpHandler : UNetworkClientHandlerBehavior
+    public sealed class UNetworkClientProtocolTcpHandler : UNetworkClientHandlerBehavior
     {
         private TcpClient _tcpSocket;
         private NetworkStream _networkStream;
@@ -18,21 +18,21 @@ namespace Network.UnityServer.Handlers
         public bool IsTcpConnect => _isTcpConnect;
         public byte[] ReceiveData => _receiveData;
 
-        public UNetworkServerProtocolTcpHandler(UNetworkClient unc) : base(unc) { }
+        public UNetworkClientProtocolTcpHandler(UNetworkClient unc) : base(unc) { }
   
         public void Connect(TcpClient tcpSocket)
         {
             if (!_isTcpConnect)
             {
                 _tcpSocket = tcpSocket;
-                _tcpSocket.ReceiveBufferSize = Client.NetworkServer.receiveBufferSize;
-                _tcpSocket.SendBufferSize = Client.NetworkServer.sendBufferSize;
+                _tcpSocket.ReceiveBufferSize = Client.CurrentServer.receiveBufferSize;
+                _tcpSocket.SendBufferSize = Client.CurrentServer.sendBufferSize;
         
                 _networkStream = _tcpSocket.GetStream();
-                _receiveData = new byte[Client.NetworkServer.receiveBufferSize];
+                _receiveData = new byte[Client.CurrentServer.receiveBufferSize];
                 _isTcpConnect = true;
 
-                Client.NetworkServer.OnConnectClient(Client.Index);
+                Client.OnConnectClient();
                 
                 _networkStream.BeginRead(_receiveData, 0, _receiveData.Length, CallBackReceive, null);
             }
@@ -52,7 +52,7 @@ namespace Network.UnityServer.Handlers
                     }
 
                     HandleData(sizeData, _receiveData);
-                    _receiveData = new byte[Client.NetworkServer.receiveBufferSize];
+                    _receiveData = new byte[Client.CurrentServer.receiveBufferSize];
                     _networkStream.BeginRead(_receiveData, 0, _receiveData.Length, CallBackReceive, null);
                 }
                 catch (Exception e)
@@ -75,7 +75,7 @@ namespace Network.UnityServer.Handlers
                     BufferBytes = packet.ReadBytes((ushort)(sizeData - packet.ReadPointer))
                 };
 
-                UNetworkUpdate.AddToQueue(() => Client.NetworkServer.RulesHandler.ExecuteRule(Client.Index, handlerPacket)); 
+                UNetworkUpdate.AddToQueue(() => Client.CurrentServer.RulesHandler.ExecuteRule(Client.Index, handlerPacket)); 
             }
         }
         public void SendData(byte[] data)

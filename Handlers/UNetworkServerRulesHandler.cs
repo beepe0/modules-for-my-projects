@@ -6,17 +6,19 @@ namespace Network.UnityServer.Handlers
 {
     public class UNetworkServerRulesHandler : UNetworkServerHandlerBehavior
     {
-        private Dictionary<ushort, PacketHandler> _rulesHandler = new Dictionary<ushort, PacketHandler>();
-        public Dictionary<ushort, PacketHandler> Rules => _rulesHandler;
+        public Dictionary<ushort, PacketHandler> Rules { get; private set; }
         
-        public UNetworkServerRulesHandler(UNetworkServer unc) : base(unc) { }
+        public UNetworkServerRulesHandler(UNetworkServer unc) : base(unc) => Rules = new Dictionary<ushort, PacketHandler>();
         
-        public void AddRule(ushort packetNumber,  PacketHandler packetHandler) => _rulesHandler.Add(packetNumber, packetHandler);
-        public void ExecuteRule(ushort clientId, UNetworkReadablePacket packet) => _rulesHandler[packet.PacketNumber](clientId, packet);
+        public void AddRule(ushort packetNumber,  PacketHandler packetHandler) => Rules.TryAdd(packetNumber, packetHandler);
+        public void ExecuteRule(ushort clientId, UNetworkReadablePacket packet)
+        {
+            if(Rules.ContainsKey(packet.PacketNumber)) Rules[packet.PacketNumber](clientId, packet);
+        } 
         public override void Close()
         {
-            _rulesHandler.Clear();
-            _rulesHandler = null;
+            Rules.Clear();
+            Rules = null;
         }
 
         public delegate void PacketHandler(ushort clientId, UNetworkReadablePacket packet);

@@ -2,10 +2,9 @@
 {
     public abstract class UNetworkServerHandlerBehavior
     {
-        protected UNetworkServer UncServer;
-        public UNetworkServer Server => UncServer;
+        public UNetworkServer Server { get; private set; }
 
-        protected UNetworkServerHandlerBehavior(UNetworkServer unc) => UncServer = unc;
+        protected UNetworkServerHandlerBehavior(UNetworkServer unc) => Server = unc;
         public virtual void Close() { }
     }
 }

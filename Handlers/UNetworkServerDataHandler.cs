@@ -9,7 +9,7 @@ namespace Network.UnityServer.Handlers
 
         public void SendDataTcp(ushort clientId, UNetworkIOPacket outputPacket)
         {
-            if (!(UncServer.Clients.TryGetValue(clientId, out var client) && client != null && client.TcpHandler.IsTcpConnect)) return;
+            if (!(Server.Clients.TryGetValue(clientId, out var client) && client != null && client.TcpHandler.IsTcpConnect)) return;
                 
             outputPacket.Insert(clientId);
             outputPacket.Insert(outputPacket.GetLength());
@@ -17,31 +17,31 @@ namespace Network.UnityServer.Handlers
         }
         public void SendDataToAllTcp(ushort clientId, UNetworkIOPacket outputPacket)
         {
-            if (!(UncServer.Clients.TryGetValue(clientId, out var client) && client != null && client.TcpHandler.IsTcpConnect)) return;
+            if (!(Server.Clients.TryGetValue(clientId, out var client) && client != null && client.TcpHandler.IsTcpConnect)) return;
             
             outputPacket.Insert(clientId);
             outputPacket.Insert(outputPacket.GetLength());
             
-            foreach (UNetworkClient c in UncServer.Clients.Values)
+            foreach (UNetworkClient c in Server.Clients.Values)
             {
                 c.TcpHandler.SendData(outputPacket.ToArray());
             }
         }
         public void SendDataToAllExceptClientTcp(ushort clientId, UNetworkIOPacket outputPacket)
         {
-            if (!(UncServer.Clients.TryGetValue(clientId, out var client) && client != null && client.TcpHandler.IsTcpConnect)) return;
+            if (!(Server.Clients.TryGetValue(clientId, out var client) && client != null && client.TcpHandler.IsTcpConnect)) return;
             
             outputPacket.Insert(clientId);
             outputPacket.Insert(outputPacket.GetLength());
             
-            foreach (UNetworkClient c in UncServer.Clients.Values)
+            foreach (UNetworkClient c in Server.Clients.Values)
             {
                 if (clientId != c.Index) c.TcpHandler.SendData(outputPacket.ToArray());
             }
         }
         public void SendDataUdp(ushort clientId, UNetworkIOPacket outputPacket)
         {
-            if (!(UncServer.Clients.TryGetValue(clientId, out var client) && client != null && client.UdpHandler.IsUdpConnect)) return;
+            if (!(Server.Clients.TryGetValue(clientId, out var client) && client != null && client.UdpHandler.IsUdpConnect)) return;
             
             outputPacket.Insert(clientId);
             outputPacket.Insert(outputPacket.GetLength());
@@ -49,24 +49,24 @@ namespace Network.UnityServer.Handlers
         }
         public void SendDataToAllUdp(ushort clientId, UNetworkIOPacket outputPacket)
         {
-            if (!(UncServer.Clients.TryGetValue(clientId, out var client) && client != null && client.UdpHandler.IsUdpConnect)) return;
+            if (!(Server.Clients.TryGetValue(clientId, out var client) && client != null && client.UdpHandler.IsUdpConnect)) return;
 
             outputPacket.Insert(clientId);
             outputPacket.Insert(outputPacket.GetLength());
             
-            foreach (UNetworkClient c in UncServer.Clients.Values)
+            foreach (UNetworkClient c in Server.Clients.Values)
             {
                 c.UdpHandler.SendData(outputPacket.ToArray());
             }
         }
         public void SendDataToAllExceptClientUdp(ushort clientId, UNetworkIOPacket outputPacket)
         {
-            if (!(UncServer.Clients.TryGetValue(clientId, out var client) && client != null && client.UdpHandler.IsUdpConnect)) return;
+            if (!(Server.Clients.TryGetValue(clientId, out var client) && client != null && client.UdpHandler.IsUdpConnect)) return;
 
             outputPacket.Insert(clientId);
             outputPacket.Insert(outputPacket.GetLength());
             
-            foreach (UNetworkClient c in UncServer.Clients.Values)
+            foreach (UNetworkClient c in Server.Clients.Values)
             {
                 if(clientId != c.Index) c.UdpHandler.SendData(outputPacket.ToArray());
             }

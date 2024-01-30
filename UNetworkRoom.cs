@@ -1,26 +1,64 @@
-﻿using System.Collections.Generic;
-using Network.UnityServer.Behaviors;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace Network.UnityServer
 {
-    public class UNetworkRoom
+    public class UNetworkRoom //must be extended by Monobehaviour
     {
-        private ushort _index;
+        public ushort Index { get; private set; }
+        public bool IsOpened { get; private set; }
+        public Dictionary<ushort, UNetworkClient> Clients { get; private set; }
+        public UNetworkServer CurrentServer { get; private set; }
         
-        private Dictionary<ushort, UNetworkClient> _clients = new Dictionary<ushort, UNetworkClient>();
-        private UNetworkServer _networkServer;
-        
-        public ushort Index => _index;
-        public UNetworkServer NetworkServer => _networkServer;
-        public Dictionary<ushort, UNetworkClient> Clients => _clients;
-        public static T CreateInstance<T>(UNetworkServer server, ushort index, ushort slots) where T : UNetworkRoom, new()
+        public static TRoom CreateInstance<TRoom>(UNetworkServer server, ushort index, ushort slots) where TRoom : UNetworkRoom, new()
         {
-            T room = new T();
+            TRoom room = new TRoom(); 
             
-            room._index = index;
-            room._networkServer = server;
+            room.Index = index;
+            room.IsOpened = false;
+            room.Clients = new Dictionary<ushort, UNetworkClient>();
+            room.CurrentServer = server;
             
             return room;
         }
+        public TClient GetClient<TClient>(ushort index) where TClient : UNetworkClient, new() => Clients[index] as TClient;
+        public TServer GetCurrentServer<TServer>() where TServer : UNetworkServer, new() => CurrentServer as TServer;
+
+        public void Open() //should be internal //virtual test
+        {
+            if (IsOpened) return;
+            
+            IsOpened = true;
+            OnCreateRoom();
+            Clients.Clear();
+        }
+        public void Enter(ushort clientId) //should be internal
+        {
+            if (!IsOpened) return;
+            
+            OnEntryToRoomClient(clientId);
+            CurrentServer.GetClient<UNetworkClient>(clientId).CurrentSession = this;
+            Clients.Add(clientId, CurrentServer.GetClient<UNetworkClient>(clientId));
+        }
+        public void Exit(ushort clientId) //should be internal
+        {
+            if (!IsOpened) return;
+            
+            OnExitFromRoomClient(clientId);
+            Clients.Remove(clientId);
+        }
+        public void Close() //should be internal //virtual test
+        {
+            if (!IsOpened) return;
+            
+            IsOpened = false;
+            OnCloseRoom();
+            Clients.Clear();
+        }
+        public virtual void OnCreateRoom(){}
+        public virtual void OnCloseRoom(){}
+        public virtual void OnEntryToRoomClient(ushort clientId){}
+        public virtual void OnExitFromRoomClient(ushort clientId){}
     }
 }

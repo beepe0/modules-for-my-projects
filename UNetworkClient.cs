@@ -1,54 +1,38 @@
-using System;
 using Network.UnityServer.Handlers;
-using UnityEngine;
 
 namespace Network.UnityServer
 {
-    public class UNetworkClient
+    public class UNetworkClient //must be extended by Monobehaviour
     {
-        private ushort _index;
+        public ushort Index { get; private set; } //set should be internal
+        public UNetworkRoom CurrentSession { get; set; } //set should be internal
+        public UNetworkServer CurrentServer { get; private set; } //set should be internal
+        public UNetworkClientProtocolTcpHandler TcpHandler { get; private set; } //set should be internal
+        public UNetworkClientProtocolUdpHandler UdpHandler { get; private set; } //set should be internal
 
-        private UNetworkRoom _mainSession;
-        private UNetworkServer _networkServer;
-        private UNetworkServerProtocolTcpHandler _tcpHandler;
-        private UNetworkServerProtocolUdpHandler _udpHandler;
-
-        public ushort Index => _index;
-        public UNetworkRoom MainSession => _mainSession;
-        public UNetworkServer NetworkServer => _networkServer;
-        public UNetworkServerProtocolTcpHandler TcpHandler => _tcpHandler;
-        public UNetworkServerProtocolUdpHandler UdpHandler => _udpHandler;
-
-        public static T CreateInstance<T>(UNetworkServer server, ushort index) where T : UNetworkClient, new()
+        public static TClient CreateInstance<TClient>(UNetworkServer server, ushort index) where TClient : UNetworkClient, new()
         {
-            T client = new T();
+            TClient client = new TClient();
             
-            client._index = index;
-            client._networkServer = server;
+            client.Index = index;
+            client.CurrentServer = server;
             
-            client._tcpHandler = new UNetworkServerProtocolTcpHandler(client);
-            client._udpHandler = new UNetworkServerProtocolUdpHandler(client);
+            client.TcpHandler = new UNetworkClientProtocolTcpHandler(client);
+            client.UdpHandler = new UNetworkClientProtocolUdpHandler(client);
 
             return client;
         }
-        public void Disconnect()
+        public TRoom GetCurrentSession<TRoom>() where TRoom : UNetworkRoom, new() => CurrentSession as TRoom;
+        public TServer GetCurrentServer<TServer>() where TServer : UNetworkServer, new() => CurrentServer as TServer;
+        
+        public void Disconnect() //should be internal
         {
-            if (_tcpHandler is { IsTcpConnect: true } || _udpHandler is { IsUdpConnect: true }) NetworkServer.OnDisconnectClient(_index);
+            if (TcpHandler is { IsTcpConnect: true } || UdpHandler is { IsUdpConnect: true }) OnDisconnectClient();
             
-            if (_tcpHandler != null) _tcpHandler.Close();
-            if (_udpHandler != null) _udpHandler.Close();
+            if (TcpHandler != null) TcpHandler.Close();
+            if (UdpHandler != null) UdpHandler.Close();
         }
-        public void Enter(ushort id)
-        {
-            if (_tcpHandler is { IsTcpConnect: true } || _udpHandler is { IsUdpConnect: true }) NetworkServer.OnEntryToRoomClient(_index);
-
-            _mainSession = _networkServer.Rooms[id];
-        }
-        public void Exit()
-        {
-            if (_tcpHandler is { IsTcpConnect: true } || _udpHandler is { IsUdpConnect: true }) NetworkServer.OnExitFromRoomClient(_index);
-
-            _mainSession.Clients.Remove(_index);
-        }
+        public virtual void OnConnectClient(){}
+        public virtual void OnDisconnectClient(){}
     }
 }

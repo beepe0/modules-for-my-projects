@@ -2,99 +2,105 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using Network.UnityServer.Behaviors;
 using Network.UnityServer.Handlers;
 using Network.UnityTools;
+using UnityEngine;
 
 namespace Network.UnityServer
 {
-    public abstract class UNetworkServer : UNetworkServerBehavior 
+    public class UNetworkServer : MonoBehaviour
     {
-        private bool _isRunServer;
-        private ushort _index;
+        [Header("Configuration")] 
+        public bool dontDestroyOnLoad;
+        public bool startOnAwake;
+        
+        [Header("Connection settings")]
+        public ushort serverPort = 34567;
+        public string serverInternetProtocol = "127.0.0.1";
 
-        private TcpListener _tcpListener;
-        private UdpClient _udpListener;
+        [Header("Server settings")]
+        public ushort slots = 20;
+        public ushort slotsInRoom = 2;
+        public ushort rooms = 10;
         
-        private Dictionary<ushort, UNetworkClient> _clients = new Dictionary<ushort, UNetworkClient>();
-        private Dictionary<ushort, UNetworkRoom> _rooms = new Dictionary<ushort, UNetworkRoom>();
+        [Header("Client settings")]
+        public ushort receiveBufferSize = 512;
+        public ushort sendBufferSize = 512;
         
-        private UNetworkServerRulesHandler _rulesHandler;
-        private UNetworkServerDataHandler _dataHandler;
+        public ushort Index { get; private set; }
+        public bool IsRunServer { get; private set; }
+        public Dictionary<ushort, UNetworkClient> Clients { get; private set; }
+        public Dictionary<ushort, UNetworkRoom> Rooms { get; private set; }
+        public TcpListener TcpListener { get; private set; }
+        public UdpClient UdpListener { get; private set; }
+        public UNetworkServerRulesHandler RulesHandler { get; private set; }
+        public UNetworkServerDataHandler DataHandler { get; private set; }
 
-        public ushort Index => _index;
-        public bool IsRunServer => _isRunServer;
-        public TcpListener TcpListener => _tcpListener;
-        public UdpClient UdpListener => _udpListener;
-        public Dictionary<ushort, UNetworkClient> Clients => _clients;
-        public Dictionary<ushort, UNetworkRoom> Rooms => _rooms;
-        public UNetworkServerRulesHandler RulesHandler => _rulesHandler;
-        public UNetworkServerDataHandler DataHandler => _dataHandler;
-        
-        public override void StartServer<TClientType, TRoomType>(ushort serverId)
+        public void StartServer<TRoom, TClient>(UNetworkServer server) where TRoom : UNetworkRoom, new() where TClient : UNetworkClient, new()
         {
-            if (!_isRunServer)
+            if (!IsRunServer)
             {
-                _index = serverId;
-                _rulesHandler = new UNetworkServerRulesHandler(this);
-                _dataHandler = new UNetworkServerDataHandler(this);
-                
+                Index = server.Index;
+                Clients = new Dictionary<ushort, UNetworkClient>();
+                Rooms = new Dictionary<ushort, UNetworkRoom>();
+                RulesHandler = new UNetworkServerRulesHandler(server);
+                DataHandler = new UNetworkServerDataHandler(server);
+               
                 for (ushort id = 0; id < slots + 1; id++)
                 {
-                    if(id == serverId) continue;
-                    _clients.Add(id, UNetworkClient.CreateInstance<TClientType>(this, id));
+                    if(id == server.Index) continue;
+                    Clients.Add(id, UNetworkClient.CreateInstance<TClient>(server, id));
                 }
                 for (ushort id = 0; id < rooms; id++)
                 {
-                    _rooms.Add(id, UNetworkRoom.CreateInstance<TRoomType>(this, id, slotsInRoom));
+                    Rooms.Add(id, UNetworkRoom.CreateInstance<TRoom>(server, id, slotsInRoom));
                 }
                 
-                _tcpListener = new TcpListener(new IPEndPoint(IPAddress.Parse(serverInternetProtocol), serverPort));
-                _tcpListener.Start();
-                _tcpListener.BeginAcceptTcpClient(CallBackAcceptTcpClient, null);
-                _isRunServer = true;
-                _udpListener = new UdpClient(serverPort);
-                _udpListener.BeginReceive(CallBackUdpReceive, null);
+                TcpListener = new TcpListener(new IPEndPoint(IPAddress.Parse(serverInternetProtocol), serverPort));
+                TcpListener.Start();
+                TcpListener.BeginAcceptTcpClient(CallBackAcceptTcpClient, null);
+                IsRunServer = true;
+                UdpListener = new UdpClient(serverPort);
+                UdpListener.BeginReceive(CallBackUdpReceive, null);
                 OnStartServer();
             }
         }
-        public override void CloseServer()
+        public void CloseServer()
         {
-            if (_isRunServer)
+            if (IsRunServer)
             {
                 OnCloseServer();
 
-                _isRunServer = false;
+                IsRunServer = false;
                 
-                _udpListener.Close();
-                _tcpListener.Stop();
+                UdpListener.Close();
+                TcpListener.Stop();
                 
-                if(_rulesHandler.Rules != null) _rulesHandler.Close();
+                if(RulesHandler.Rules != null) RulesHandler.Close();
                 
-                foreach (UNetworkClient networkClient in _clients.Values) networkClient.Disconnect();
+                foreach (UNetworkClient networkClient in Clients.Values) networkClient.Disconnect();
                 
-                _clients.Clear();
+                Clients.Clear();
             }
         }
-        
         private void CallBackAcceptTcpClient(IAsyncResult asyncResult)
         {
-            TcpClient cl = _tcpListener.EndAcceptTcpClient(asyncResult);
-            _tcpListener.BeginAcceptTcpClient(CallBackAcceptTcpClient, null);
+            TcpClient cl = TcpListener.EndAcceptTcpClient(asyncResult);
+            TcpListener.BeginAcceptTcpClient(CallBackAcceptTcpClient, null);
 
-            foreach (UNetworkClient t in _clients.Values)
+            foreach (UNetworkClient t in Clients.Values)
             {
                 if(t.TcpHandler.TcpSocket == null) { t.TcpHandler.Connect(cl); return; }
             }
         }
         private void CallBackUdpReceive(IAsyncResult asyncResult)
         {
-            if (_isRunServer)
+            if (IsRunServer)
             {
                 try
                 {
                     IPEndPoint epClient = new IPEndPoint(IPAddress.Any, 0);
-                    byte[] data = _udpListener.EndReceive(asyncResult, ref epClient);
+                    byte[] data = UdpListener.EndReceive(asyncResult, ref epClient);
                     
                     if(data.Length < 4)
                     {
@@ -111,9 +117,9 @@ namespace Network.UnityServer
                         BufferBytes = inputPacket.ReadBytes((ushort)(inputPacket.GetLength() - inputPacket.ReadPointer)),
                     };
                     
-                    if(!_clients.ContainsKey(readablePacket.Index)) return;
+                    if(!Clients.ContainsKey(readablePacket.Index)) return;
              
-                    var uNetworkClient = _clients[readablePacket.Index];
+                    var uNetworkClient = Clients[readablePacket.Index];
 
                     if (uNetworkClient.UdpHandler.EndPoint == null)
                     {
@@ -125,7 +131,7 @@ namespace Network.UnityServer
                         uNetworkClient.UdpHandler.HandleData(readablePacket);
                     }
 
-                    _udpListener.BeginReceive(CallBackUdpReceive, null);
+                    UdpListener.BeginReceive(CallBackUdpReceive, null);
                 }
                 catch (Exception e)
                 {
@@ -134,8 +140,10 @@ namespace Network.UnityServer
                 }
             }
         }
+        public TClient GetClient<TClient>(ushort index) where TClient : UNetworkClient, new() => Clients[index] as TClient;
+        public TRoom GetRoom<TRoom>(ushort index) where TRoom : UNetworkRoom, new() => Rooms[index] as TRoom;
 
-        public T GetClient<T>(ushort index) where T : UNetworkClient => _clients[index] as T;
-        public T GetRoom<T>(ushort index) where T : UNetworkRoom => _rooms[index] as T;
+        protected virtual void OnStartServer(){}
+        protected virtual void OnCloseServer(){}
     }
 }

@@ -2,10 +2,9 @@
 {
     public abstract class UNetworkClientHandlerBehavior
     {
-        protected UNetworkClient UncClient;
-        public UNetworkClient Client => UncClient;
+        public UNetworkClient Client { get; private set; }
 
-        protected UNetworkClientHandlerBehavior(UNetworkClient unc) => UncClient = unc;
+        protected UNetworkClientHandlerBehavior(UNetworkClient unc) => Client = unc;
         public virtual void Close() { }
     }
 }
